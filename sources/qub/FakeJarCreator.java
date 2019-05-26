@@ -10,8 +10,7 @@ public class FakeJarCreator extends JarCreator
         return Result.create(() ->
         {
             final Folder baseFolder = getBaseFolder();
-            final String jarName = getJarName();
-            final File jarFile = baseFolder.getFile(jarName + ".jar").await();
+            final File jarFile = getJarFile();
 
             try (final CharacterWriteStream writeStream = jarFile.getContentCharacterWriteStream().await())
             {

@@ -129,6 +129,15 @@ public abstract class JarCreator
     }
 
     /**
+     * Get the jar file that will be created.
+     * @return The jar file that will be created.
+     */
+    public File getJarFile()
+    {
+        return getBaseFolder().getFile(getJarName() + ".jar").await();
+    }
+
+    /**
      * Create and return a reference to the jar file.
      * @param process The Process that will be used to run commands.
      * @param isVerbose Whether or not to show verbose logs.

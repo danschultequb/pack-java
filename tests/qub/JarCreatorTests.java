@@ -205,6 +205,61 @@ public interface JarCreatorTests
                         () -> jarCreator.createJarFile(test.getProcess(), false).await());
                 });
             });
+
+            runner.testGroup("getJarFile()", () ->
+            {
+                runner.test("when baseFolder has not been set", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    test.assertThrows(new PostConditionFailure("result cannot be null."),
+                        () -> jarCreator.getJarFile());
+                });
+
+                runner.test("when jarName has not been set", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    final InMemoryFileSystem fileSystem = createFileSystem(test);
+                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    test.assertThrows(new PostConditionFailure("result cannot be null."),
+                        () -> jarCreator.getJarFile());
+                });
+
+                runner.test("when jarName does not end in .jar", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    final InMemoryFileSystem fileSystem = createFileSystem(test);
+                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello");
+
+                    final File jarFile = jarCreator.getJarFile();
+                    test.assertNotNull(jarFile);
+                    test.assertFalse(jarFile.exists().await());
+                    test.assertEqual("/base/folder/hello.jar", jarFile.toString());
+                });
+
+                runner.test("when jarName ends in .jar", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    final InMemoryFileSystem fileSystem = createFileSystem(test);
+                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello.jar");
+
+                    final File jarFile = jarCreator.getJarFile();
+                    test.assertNotNull(jarFile);
+                    test.assertFalse(jarFile.exists().await());
+                    test.assertEqual("/base/folder/hello.jar.jar", jarFile.toString());
+                });
+            });
         });
     }
 

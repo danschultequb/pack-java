@@ -2,6 +2,39 @@ package qub;
 
 public class JavaJarCreator extends JarCreator
 {
+    /**
+     * Get the arguments that will be passed to the jar command.
+     * @return The arguments that will be passed to the jar command.
+     */
+    public List<String> getJarCommandArguments()
+    {
+        List<String> result = List.create();
+
+        String jarArguments = "cf";
+        final File manifestFile = getManifestFile();
+        if (manifestFile != null)
+        {
+            jarArguments += 'm';
+        }
+        result.add(jarArguments);
+
+        final Folder baseFolder = getBaseFolder();
+
+        result.add(getJarFile().getPath().toString());
+
+        if (manifestFile != null)
+        {
+            result.add(manifestFile.relativeTo(baseFolder).toString());
+        }
+
+        result.addAll(getFiles()
+            .map((File file) -> file.relativeTo(baseFolder).toString()));
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
+    }
+
     @Override
     public Result<File> createJarFile(Process process, boolean isVerbose)
     {
@@ -16,24 +49,7 @@ public class JavaJarCreator extends JarCreator
             final Folder baseFolder = getBaseFolder();
             jar.setWorkingFolder(baseFolder);
 
-            String jarArguments = "cf";
-            final File manifestFile = getManifestFile();
-            if (manifestFile != null)
-            {
-                jarArguments += 'm';
-            }
-            jar.addArgument(jarArguments);
-
-            final File jarFile = baseFolder.getFile(getJarName() + ".jar").await();
-            jar.addArgument(jarFile.getPath().toString());
-
-            if (manifestFile != null)
-            {
-                jar.addArgument(manifestFile.relativeTo(baseFolder).toString());
-            }
-
-            jar.addArguments(getFiles()
-                .map((File file) -> file.relativeTo(baseFolder).toString()));
+            jar.addArguments(getJarCommandArguments());
 
             if (isVerbose)
             {
@@ -42,7 +58,7 @@ public class JavaJarCreator extends JarCreator
 
             jar.run().await();
 
-            return jarFile;
+            return getJarFile();
         });
     }
 }
