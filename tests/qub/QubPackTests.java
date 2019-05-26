@@ -28,8 +28,6 @@ public interface QubPackTests
 
     static void main(Console console)
     {
-        PreCondition.assertNotNull(console, "console");
-
         final QubBuild build = new QubBuild();
         build.setJavaCompiler(new FakeJavaCompiler());
         build.setJarCreator(new FakeJarCreator());
