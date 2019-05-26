@@ -130,9 +130,9 @@ public abstract class JarCreator
 
     /**
      * Create and return a reference to the jar file.
-     * @param console The Console process that will be used to run commands.
+     * @param process The Process that will be used to run commands.
      * @param isVerbose Whether or not to show verbose logs.
      * @return The reference to the created jar file.
      */
-    public abstract Result<File> createJarFile(Console console, boolean isVerbose);
+    public abstract Result<File> createJarFile(Process process, boolean isVerbose);
 }

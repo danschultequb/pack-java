@@ -3,8 +3,10 @@ package qub;
 public class FakeJarCreator extends JarCreator
 {
     @Override
-    public Result<File> createJarFile(Console console, boolean isVerbose)
+    public Result<File> createJarFile(Process process, boolean isVerbose)
     {
+        PreCondition.assertNotNull(process, "process");
+
         return Result.create(() ->
         {
             final Folder baseFolder = getBaseFolder();

@@ -3,13 +3,15 @@ package qub;
 public class JavaJarCreator extends JarCreator
 {
     @Override
-    public Result<File> createJarFile(Console console, boolean isVerbose)
+    public Result<File> createJarFile(Process process, boolean isVerbose)
     {
+        PreCondition.assertNotNull(process, "process");
+
         return Result.create(() ->
         {
-            final ProcessBuilder jar = console.getProcessBuilder("jar").await();
-            jar.redirectOutput(console.getOutputByteWriteStream());
-            jar.redirectError(console.getErrorByteWriteStream());
+            final ProcessBuilder jar = process.getProcessBuilder("jar").await();
+            jar.redirectOutput(process.getOutputByteWriteStream());
+            jar.redirectError(process.getErrorByteWriteStream());
 
             final Folder baseFolder = getBaseFolder();
             jar.setWorkingFolder(baseFolder);
@@ -35,7 +37,7 @@ public class JavaJarCreator extends JarCreator
 
             if (isVerbose)
             {
-                console.writeLine(jar.getCommand());
+                process.getOutputCharacterWriteStream().writeLine(jar.getCommand()).await();
             }
 
             jar.run().await();

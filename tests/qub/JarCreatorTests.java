@@ -124,11 +124,18 @@ public interface JarCreatorTests
                         () -> jarCreator.setJarName(""));
                 });
 
-                runner.test("with non-empty", (Test test) ->
+                runner.test("with non-empty jarName without .jar extension", (Test test) ->
                 {
                     final JarCreator jarCreator = creator.run();
                     test.assertSame(jarCreator, jarCreator.setJarName("hello"));
                     test.assertEqual("hello", jarCreator.getJarName());
+                });
+
+                runner.test("with non-empty jarName with .jar extension", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+                    test.assertSame(jarCreator, jarCreator.setJarName("hello.jar"));
+                    test.assertEqual("hello.jar", jarCreator.getJarName());
                 });
             });
 
@@ -139,6 +146,63 @@ public interface JarCreatorTests
                     final JarCreator jarCreator = creator.run();
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
                         () -> jarCreator.getJarName());
+                });
+            });
+
+            runner.testGroup("createJarFile(Process,boolean)", () ->
+            {
+                runner.test("with null Process", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+                    test.assertThrows(new PreConditionFailure("process cannot be null."),
+                        () -> jarCreator.createJarFile(null, false));
+                });
+
+                runner.test("with no baseFolder set", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+                    test.assertThrows(new PostConditionFailure("result cannot be null."),
+                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                });
+
+                runner.test("with no jarName set", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    final InMemoryFileSystem fileSystem = createFileSystem(test);
+                    jarCreator.setBaseFolder(fileSystem.getFolder("/base/folder/").await());
+
+                    test.assertThrows(new PostConditionFailure("result cannot be null."),
+                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                });
+
+                runner.test("with no files set", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    final InMemoryFileSystem fileSystem = createFileSystem(test);
+                    jarCreator.setBaseFolder(fileSystem.getFolder("/base/folder/").await());
+
+                    jarCreator.setJarName("hello");
+
+                    test.assertThrows(new PostConditionFailure("result cannot be null."),
+                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                });
+
+                runner.test("with manifestFile set but no files set", (Test test) ->
+                {
+                    final JarCreator jarCreator = creator.run();
+
+                    final InMemoryFileSystem fileSystem = createFileSystem(test);
+                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello");
+
+                    jarCreator.setManifestFile(baseFolder.getFile("manifest.file").await());
+
+                    test.assertThrows(new PostConditionFailure("result cannot be null."),
+                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
                 });
             });
         });
