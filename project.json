@@ -1,0 +1,33 @@
+{
+  "publisher": "qub",
+  "project": "qub-java-pack",
+  "version": "1",
+  "java": {
+    "mainClass": "qub.QubTest",
+    "shortcutName": "qub-pack",
+    "version": "1.8",
+    "sources": {
+      "version": "1.8"
+    },
+    "tests": {
+      "version": "1.8"
+    },
+    "dependencies": [
+      {
+        "publisher": "qub",
+        "project": "qub-java",
+        "version": "72"
+      },
+      {
+        "publisher": "qub",
+        "project": "qub-build",
+        "version": "71"
+      },
+      {
+        "publisher": "qub",
+        "project": "qub-test",
+        "version": "35"
+      }
+    ]
+  }
+}
