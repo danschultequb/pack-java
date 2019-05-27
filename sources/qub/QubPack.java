@@ -3,6 +3,7 @@ package qub;
 public class QubPack
 {
     private QubTest qubTest;
+    private JarCreator jarCreator;
     private Boolean showTotalDuration;
 
     /**
@@ -34,6 +35,35 @@ public class QubPack
         return result;
     }
 
+    /**
+     * Set the JarCreator that will be used to create jar files.
+     * @param jarCreator The JarCreator that will be used to create jar files.
+     * @return This object for method chaining.
+     */
+    public QubPack setJarCreator(JarCreator jarCreator)
+    {
+        this.jarCreator = jarCreator;
+        return this;
+    }
+
+    /**
+     * Get the JarCreator that will be used to create jar files. If no JarCreator has been set, a
+     * default one will be created and returned.
+     * @return The JarCreator that will be used to create jar files.
+     */
+    public JarCreator getJarCreator()
+    {
+        if (jarCreator == null)
+        {
+            jarCreator = new JavaJarCreator();
+        }
+        final JarCreator result = jarCreator;
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     public void setShowTotalDuration(boolean showTotalDuration)
     {
         this.showTotalDuration = showTotalDuration;
@@ -55,7 +85,7 @@ public class QubPack
         if (shouldShowUsage(console))
         {
             console.writeLine("Usage: qub-pack [[-folder=]<folder-path-to-pack>] [-verbose]").await();
-            console.writeLine("  Used to package source, test, and compiled code in source code projects.").await();
+            console.writeLine("  Used to package source and compiled code in source code projects.").await();
             console.writeLine("  -folder: The folder to pack. This can be specified either with the -folder").await();
             console.writeLine("           argument name or without it.").await();
             console.writeLine("  -verbose: Whether or not to show verbose logs.").await();
@@ -83,19 +113,57 @@ public class QubPack
 
                 if (console.getExitCode() == 0)
                 {
-                    console.writeLine("Creating packages...").await();
+                    final JarCreator jarCreator = getJarCreator();
 
                     final Folder folderToPack = getFolderToPack(console);
-                    
                     final Folder outputFolder = folderToPack.getFolder("outputs").await();
-                    final Folder sourceFolder = folderToPack.getFolder("sources").await();
-                    final Folder testFolder = folderToPack.getFolder("tests").await();
+                    final Iterable<File> outputClassFiles = outputFolder.getFilesRecursively().await()
+                        .where((File file) -> Comparer.equal(file.getFileExtension(), ".class"))
+                        .toList();
 
-                    final String qubHome = console.getEnvironmentVariable("QUB_HOME");
-                    final Folder qubFolder = console.getFileSystem().getFolder(qubHome).await();
-                    
+                    final Folder sourceFolder = folderToPack.getFolder("sources").await();
+                    final Iterable<File> sourceJavaFiles = sourceFolder.getFilesRecursively().await()
+                        .where((File file) -> Comparer.equal(file.getFileExtension(), ".java"))
+                        .toList();
+
                     final File projectJsonFile = folderToPack.getFile("project.json").await();
                     final ProjectJSON projectJson = ProjectJSON.parse(projectJsonFile).await();
+
+                    console.writeLine("Creating sources jar file...").await();
+                    jarCreator.setBaseFolder(sourceFolder);
+                    jarCreator.setJarName(projectJson.getProject() + ".sources");
+                    jarCreator.setFiles(sourceJavaFiles);
+                    final File sourcesJarFile = jarCreator.createJarFile(console, isVerbose(console)).await();
+                    final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
+                    sourcesJarFile.copyTo(sourcesJarFileInOutputsFolder).await();
+                    sourcesJarFile.delete().await();
+                    verbose(console, "Created " + sourcesJarFileInOutputsFolder + ".").await();
+
+                    console.writeLine("Creating compiled sources jar file...").await();
+                    jarCreator.setBaseFolder(outputFolder);
+                    jarCreator.setJarName(projectJson.getProject());
+                    final String mainClass = projectJson.getJava().getMainClass();
+                    if (!Strings.isNullOrEmpty(mainClass))
+                    {
+                        final File manifestFile = outputFolder.getFile("META-INF/MANIFEST.MF").await();
+                        final String manifestFileContents =
+                            "Manifest-Version: 1.0\n" +
+                            "Main-Class: " + mainClass + "\n";
+                        manifestFile.setContentsAsString(manifestFileContents).await();
+                        jarCreator.setManifestFile(manifestFile);
+                    }
+                    jarCreator.setFiles(outputClassFiles
+                        .where((File outputClassFile) ->
+                        {
+                            final Path outputClassFileRelativePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
+                            return sourceJavaFiles.contains((File sourceJavaFile) ->
+                            {
+                                final Path sourceJavaFileRelativePath = sourceJavaFile.relativeTo(sourceFolder).withoutFileExtension();
+                                return outputClassFileRelativePath.equals(sourceJavaFileRelativePath);
+                            });
+                        }));
+                    final File compiledSourcesJarFile = jarCreator.createJarFile(console, isVerbose(console)).await();
+                    verbose(console, "Created " + compiledSourcesJarFile + ".").await();
                 }
             }
             finally
@@ -227,6 +295,6 @@ public class QubPack
 
     public static void main(String[] args)
     {
-        Console.run(args, (Console console) -> new QubTest().main(console));
+        Console.run(args, (Console console) -> new QubPack().main(console));
     }
 }

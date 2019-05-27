@@ -141,110 +141,191 @@ public interface JavaJarCreatorTests
 
             runner.testGroup("createJarFile(Process,boolean)", () ->
             {
-//                runner.test("with empty files set", (Test test) ->
-//                {
-//                    final JavaJarCreator jarCreator = new JavaJarCreator();
-//
-//                    final InMemoryFileSystem fileSystem = JarCreatorTests.createFileSystem(test);
-//                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
-//                    jarCreator.setBaseFolder(baseFolder);
-//
-//                    jarCreator.setJarName("hello");
-//
-//                    jarCreator.setFiles(Iterable.create());
-//
-//                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
-//                    test.assertNotNull(jarFile);
-//                    test.assertTrue(jarFile.exists().await());
-//                    test.assertEqual(0, jarFile.getContents().await().length);
-//                });
-//
-//                runner.test("with manifestFile set and empty files set", (Test test) ->
-//                {
-//                    final JavaJarCreator jarCreator = new JavaJarCreator();
-//
-//                    final InMemoryFileSystem fileSystem = JarCreatorTests.createFileSystem(test);
-//                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
-//                    jarCreator.setBaseFolder(baseFolder);
-//
-//                    jarCreator.setJarName("hello");
-//
-//                    jarCreator.setManifestFile(baseFolder.getFile("manifest.file").await());
-//
-//                    jarCreator.setFiles(Iterable.create());
-//
-//                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
-//                    test.assertNotNull(jarFile);
-//                    test.assertTrue(jarFile.exists().await());
-//                    test.assertEqual(
-//                        Iterable.create(
-//                            "Manifest file:",
-//                            "manifest.file",
-//                            ""
-//                        ),
-//                        Strings.getLines(jarFile.getContentsAsString().await()));
-//                });
-//
-//                runner.test("with non-empty files set", (Test test) ->
-//                {
-//                    final JavaJarCreator jarCreator = new JavaJarCreator();
-//
-//                    final InMemoryFileSystem fileSystem = JarCreatorTests.createFileSystem(test);
-//                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
-//                    jarCreator.setBaseFolder(baseFolder);
-//
-//                    jarCreator.setJarName("hello");
-//
-//                    jarCreator.setFiles(Iterable.create(
-//                        baseFolder.getFile("src/code.java").await(),
-//                        baseFolder.getFile("src/otherCode.java").await()
-//                    ));
-//
-//                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
-//                    test.assertNotNull(jarFile);
-//                    test.assertTrue(jarFile.exists().await());
-//                    test.assertEqual(
-//                        Iterable.create(
-//                            "Files:",
-//                            "src/code.java",
-//                            "src/otherCode.java",
-//                            ""
-//                        ),
-//                        Strings.getLines(jarFile.getContentsAsString().await()));
-//                });
-//
-//                runner.test("with manifestFile set and empty files set", (Test test) ->
-//                {
-//                    final JavaJarCreator jarCreator = new JavaJarCreator();
-//
-//                    final InMemoryFileSystem fileSystem = JarCreatorTests.createFileSystem(test);
-//                    final Folder baseFolder = fileSystem.getFolder("/base/folder/").await();
-//                    jarCreator.setBaseFolder(baseFolder);
-//
-//                    jarCreator.setJarName("hello");
-//
-//                    jarCreator.setManifestFile(baseFolder.getFile("manifest.file").await());
-//
-//                    jarCreator.setFiles(Iterable.create(
-//                        baseFolder.getFile("src/code.java").await(),
-//                        baseFolder.getFile("src/otherCode.java").await()
-//                    ));
-//
-//                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
-//                    test.assertNotNull(jarFile);
-//                    test.assertTrue(jarFile.exists().await());
-//                    test.assertEqual(
-//                        Iterable.create(
-//                            "Manifest file:",
-//                            "manifest.file",
-//                            "",
-//                            "Files:",
-//                            "src/code.java",
-//                            "src/otherCode.java",
-//                            ""
-//                        ),
-//                        Strings.getLines(jarFile.getContentsAsString().await()));
-//                });
+                runner.test("with empty files set", (Test test) ->
+                {
+                    final JavaJarCreator jarCreator = new JavaJarCreator();
+
+                    final Process process = new Process();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    process.setOutputByteWriteStream(output);
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    process.setErrorByteWriteStream(error);
+
+                    final Folder baseFolder = process.getCurrentFolder().await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello");
+
+                    jarCreator.setFiles(Iterable.create());
+
+                    final File jarFile = jarCreator.createJarFile(process, true).await();
+                    try
+                    {
+                        test.assertNotNull(jarFile);
+                        test.assertFalse(jarFile.exists().await());
+                    }
+                    finally
+                    {
+                        jarFile.delete().catchError(FileNotFoundException.class).await();
+                    }
+
+                    final String outputText = output.asCharacterReadStream().getText().await();
+                    test.assertContains(outputText, "/jar");
+                    test.assertContains(outputText, " cf ");
+                    test.assertContains(outputText, "/qub-java-pack/hello.jar");
+                    test.assertEqual(
+                        Iterable.create(
+                            "'c' flag requires manifest or input files to be specified!",
+                            "Try `jar --help' for more information."),
+                        Strings.getLines(error.asCharacterReadStream().getText().await()));
+                });
+
+                runner.test("with manifestFile set and empty files set", (Test test) ->
+                {
+                    final JavaJarCreator jarCreator = new JavaJarCreator();
+
+                    final Process process = new Process();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    process.setOutputByteWriteStream(output);
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    process.setErrorByteWriteStream(error);
+
+                    final Folder baseFolder = process.getCurrentFolder().await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello");
+
+                    final File manifestFile = baseFolder.createFile("manifest.file").await();
+                    try
+                    {
+                        jarCreator.setManifestFile(manifestFile);
+
+                        jarCreator.setFiles(Iterable.create());
+
+                        final File jarFile = jarCreator.createJarFile(process, true).await();
+                        try
+                        {
+                            test.assertNotNull(jarFile);
+                            test.assertTrue(jarFile.exists().await());
+                        }
+                        finally
+                        {
+                            jarFile.delete().catchError(FileNotFoundException.class).await();
+                        }
+
+                        final String outputText = output.asCharacterReadStream().getText().await();
+                        test.assertContains(outputText, "/jar");
+                        test.assertContains(outputText, " cfm ");
+                        test.assertContains(outputText, jarFile.toString());
+                        test.assertContains(outputText, manifestFile.relativeTo(baseFolder).toString());
+                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    }
+                    finally
+                    {
+                        manifestFile.delete().await();
+                    }
+                });
+
+                runner.test("with non-empty files set", (Test test) ->
+                {
+                    final JavaJarCreator jarCreator = new JavaJarCreator();
+
+                    final Process process = new Process();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    process.setOutputByteWriteStream(output);
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    process.setErrorByteWriteStream(error);
+
+                    final Folder baseFolder = process.getCurrentFolder().await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello");
+
+                    final File licenseFile = baseFolder.getFile("LICENSE").await();
+                    final File projectJsonFile = baseFolder.getFile("project.json").await();
+                    final File qubPackJavaFile = baseFolder.getFile("sources/qub/QubPack.java").await();
+                    jarCreator.setFiles(Iterable.create(
+                        licenseFile,
+                        projectJsonFile,
+                        qubPackJavaFile
+                    ));
+
+                    final File jarFile = jarCreator.createJarFile(process, true).await();
+                    try
+                    {
+                        test.assertNotNull(jarFile);
+                        test.assertTrue(jarFile.exists().await());
+                    }
+                    finally
+                    {
+                        jarFile.delete().catchError(FileNotFoundException.class).await();
+                    }
+
+                    final String outputText = output.asCharacterReadStream().getText().await();
+                    test.assertContains(outputText, "/jar");
+                    test.assertContains(outputText, " cf ");
+                    test.assertContains(outputText, jarFile.toString());
+                    test.assertContains(outputText, licenseFile.relativeTo(baseFolder).toString());
+                    test.assertContains(outputText, projectJsonFile.relativeTo(baseFolder).toString());
+                    test.assertContains(outputText, qubPackJavaFile.relativeTo(baseFolder).toString());
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                });
+
+                runner.test("with manifestFile set and empty files set", (Test test) ->
+                {
+                    final JavaJarCreator jarCreator = new JavaJarCreator();
+
+                    final Process process = new Process();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    process.setOutputByteWriteStream(output);
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    process.setErrorByteWriteStream(error);
+
+                    final Folder baseFolder = process.getCurrentFolder().await();
+                    jarCreator.setBaseFolder(baseFolder);
+
+                    jarCreator.setJarName("hello");
+
+                    final File manifestFile = baseFolder.createFile("manifest.file").await();
+                    try
+                    {
+                        jarCreator.setManifestFile(manifestFile);
+
+                        final File licenseFile = baseFolder.getFile("LICENSE").await();
+                        final File projectJsonFile = baseFolder.getFile("project.json").await();
+                        final File qubPackJavaFile = baseFolder.getFile("sources/qub/QubPack.java").await();
+                        jarCreator.setFiles(Iterable.create(
+                            licenseFile,
+                            projectJsonFile,
+                            qubPackJavaFile
+                        ));
+
+                        final File jarFile = jarCreator.createJarFile(process, true).await();
+                        try
+                        {
+                            test.assertNotNull(jarFile);
+                            test.assertTrue(jarFile.exists().await());
+                        }
+                        finally
+                        {
+                            jarFile.delete().catchError(FileNotFoundException.class).await();
+                        }
+
+                        final String outputText = output.asCharacterReadStream().getText().await();
+                        test.assertContains(outputText, "/jar");
+                        test.assertContains(outputText, " cfm ");
+                        test.assertContains(outputText, manifestFile.relativeTo(baseFolder).toString());
+                        test.assertContains(outputText, jarFile.toString());
+                        test.assertContains(outputText, licenseFile.relativeTo(baseFolder).toString());
+                        test.assertContains(outputText, projectJsonFile.relativeTo(baseFolder).toString());
+                        test.assertContains(outputText, qubPackJavaFile.relativeTo(baseFolder).toString());
+                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    }
+                    finally
+                    {
+                        manifestFile.delete().await();
+                    }
+                });
             });
         });
     }
