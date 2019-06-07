@@ -36,6 +36,5 @@ public class FakeJarCreator extends JarCreator
 
             return jarFile;
         });
-
     }
 }
