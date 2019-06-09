@@ -13,28 +13,34 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/qub-test/36/qub-test.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-test/1/qub-java-test.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://C:/qub/qub/qub-java-test/1/qub-java-test.sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/qub-build/72/qub-build.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-build/1/qub-java-build.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://C:/qub/qub/qub-java-build/1/qub-java-build.sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/qub-java/72/qub-java.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java/75/qub-java.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://C:/qub/qub/qub-java/75/qub-java.sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
