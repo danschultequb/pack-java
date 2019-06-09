@@ -155,7 +155,15 @@ public class QubPack
                     jarCreator.setFiles(outputClassFiles
                         .where((File outputClassFile) ->
                         {
-                            final Path outputClassFileRelativePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
+                            Path outputClassFilePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
+                            if (outputClassFilePath.getSegments().last().contains("$"))
+                            {
+                                final String outputClassFileRelativePathString = outputClassFilePath.toString();
+                                final int dollarSignIndex = outputClassFileRelativePathString.lastIndexOf('$');
+                                final String outputClassFileRelativePathStringWithoutDollarSign = outputClassFileRelativePathString.substring(0, dollarSignIndex);
+                                outputClassFilePath = Path.parse(outputClassFileRelativePathStringWithoutDollarSign);
+                            }
+                            final Path outputClassFileRelativePath = outputClassFilePath;
                             return sourceJavaFiles.contains((File sourceJavaFile) ->
                             {
                                 final Path sourceJavaFileRelativePath = sourceJavaFile.relativeTo(sourceFolder).withoutFileExtension();
@@ -269,24 +277,6 @@ public class QubPack
             result = console.writeLine("VERBOSE" + (showTimestamp ? "(" + System.currentTimeMillis() + ")" : "") + ": " + message)
                 .then(() -> {});
         }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    public static Result<Void> error(Console console, String message)
-    {
-        return error(console, false, message);
-    }
-
-    public static Result<Void> error(Console console, boolean showTimestamp, String message)
-    {
-        PreCondition.assertNotNull(console, "console");
-        PreCondition.assertNotNull(message, "message");
-
-        final Result<Void> result = console.writeLine("ERROR" + (showTimestamp ? "(" + System.currentTimeMillis() + ")" : "") + ": " + message).then(() -> {});
-        console.incrementExitCode();
 
         PostCondition.assertNotNull(result, "result");
 
