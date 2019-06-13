@@ -376,11 +376,11 @@ public interface QubPackTests
                     final InMemoryByteStream error = new InMemoryByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON();
-                    projectJSON.setProject("my-project");
-                    projectJSON.setPublisher("me");
-                    projectJSON.setVersion("34");
-                    projectJSON.setJava(new ProjectJSONJava());
+                    final ProjectJSON projectJSON = new ProjectJSON()
+                        .setProject("my-project")
+                        .setPublisher("me")
+                        .setVersion("34")
+                        .setJava(new ProjectJSONJava());
                     fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
@@ -408,6 +408,7 @@ public interface QubPackTests
                             "VERBOSE: Detecting java source files to compile...",
                             "VERBOSE: Compiling all source files.",
                             "VERBOSE: Starting compilation...",
+                            "VERBOSE: Running javac -d /outputs -Xlint:unchecked -Xlint:deprecation -classpath /outputs sources/A.java...",
                             "VERBOSE: Compilation finished.",
                             "Running tests...",
                             "VERBOSE: java.exe -classpath /outputs qub.ConsoleTestRunner A",
