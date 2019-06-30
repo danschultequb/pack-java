@@ -82,22 +82,23 @@ public class QubPack
     {
         PreCondition.assertNotNull(console, "console");
 
-        if (shouldShowUsage(console))
+        final CommandLineParameters parameters = console.createCommandLineParameters();
+        final CommandLineParameter<Folder> folderToPackParameter = parameters.addPositionalFolder("folder", console)
+            .setValueName("<folder-to-pack>")
+            .setDescription("The folder to pack. Defaults to the current folder.");
+        final CommandLineParameterVerbose verbose = parameters.addVerbose(console);
+        final CommandLineParameterProfiler profiler = parameters.addProfiler(console, QubPack.class);
+        final CommandLineParameterBoolean help = parameters.addHelp();
+
+        if (help.getValue().await())
         {
-            console.writeLine("Usage: qub-pack [[-folder=]<folder-path-to-pack>] [-verbose]").await();
-            console.writeLine("  Used to package source and compiled code in source code projects.").await();
-            console.writeLine("  -folder: The folder to pack. This can be specified either with the -folder").await();
-            console.writeLine("           argument name or without it.").await();
-            console.writeLine("  -verbose: Whether or not to show verbose logs.").await();
+            parameters.writeHelpLines(console, "qub-pack", "Used to package source and compiled code in source code projects.").await();
             console.setExitCode(-1);
         }
         else
         {
-            final boolean profiler = Profiler.takeProfilerArgument(console);
-            if (profiler)
-            {
-                Profiler.waitForProfiler(console, QubPack.class).await();
-            }
+            profiler.await();
+            profiler.removeValue().await();
 
             final boolean showTotalDuration = getShowTotalDuration();
             final Stopwatch stopwatch = console.getStopwatch();
@@ -115,7 +116,7 @@ public class QubPack
                 {
                     final JarCreator jarCreator = getJarCreator();
 
-                    final Folder folderToPack = getFolderToPack(console);
+                    final Folder folderToPack = folderToPackParameter.getValue().await();
                     final Folder outputFolder = folderToPack.getFolder("outputs").await();
                     final Iterable<File> outputClassFiles = outputFolder.getFilesRecursively().await()
                         .where((File file) -> Comparer.equal(file.getFileExtension(), ".class"))
@@ -133,11 +134,11 @@ public class QubPack
                     jarCreator.setBaseFolder(sourceFolder);
                     jarCreator.setJarName(projectJson.getProject() + ".sources");
                     jarCreator.setFiles(sourceJavaFiles);
-                    final File sourcesJarFile = jarCreator.createJarFile(console, isVerbose(console)).await();
+                    final File sourcesJarFile = jarCreator.createJarFile(console, verbose.getValue().await()).await();
                     final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
                     sourcesJarFile.copyTo(sourcesJarFileInOutputsFolder).await();
                     sourcesJarFile.delete().await();
-                    verbose(console, "Created " + sourcesJarFileInOutputsFolder + ".").await();
+                    verbose.writeLine("Created " + sourcesJarFileInOutputsFolder + ".").await();
 
                     console.writeLine("Creating compiled sources jar file...").await();
                     jarCreator.setBaseFolder(outputFolder);
@@ -170,8 +171,8 @@ public class QubPack
                                 return outputClassFileRelativePath.equals(sourceJavaFileRelativePath);
                             });
                         }));
-                    final File compiledSourcesJarFile = jarCreator.createJarFile(console, isVerbose(console)).await();
-                    verbose(console, "Created " + compiledSourcesJarFile + ".").await();
+                    final File compiledSourcesJarFile = jarCreator.createJarFile(console, verbose.getValue().await()).await();
+                    verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
                 }
             }
             finally
@@ -183,104 +184,6 @@ public class QubPack
                 }
             }
         }
-    }
-
-    private static boolean shouldShowUsage(Console console)
-    {
-        PreCondition.assertNotNull(console, "console");
-
-        return console.getCommandLine().contains(
-            (CommandLineArgument argument) ->
-            {
-                final String argumentString = argument.toString();
-                return argumentString.equals("/?") || argumentString.equals("-?");
-            });
-    }
-
-    private static Path getFolderPathToPack(Console console)
-    {
-        PreCondition.assertNotNull(console, "console");
-
-        Path result = null;
-        final CommandLine commandLine = console.getCommandLine();
-        if (commandLine.any())
-        {
-            CommandLineArgument folderArgument = commandLine.get("folder");
-            if (folderArgument == null)
-            {
-                folderArgument = commandLine.getArguments()
-                    .first((CommandLineArgument argument) -> argument.getName() == null);
-            }
-            if (folderArgument != null)
-            {
-                result = Path.parse(folderArgument.getValue());
-            }
-        }
-
-        if (result == null)
-        {
-            result = console.getCurrentFolderPath();
-        }
-
-        if (!result.isRooted())
-        {
-            result = console.getCurrentFolderPath().resolve(result).await();
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertTrue(result.isRooted(), "result.isRooted()");
-
-        return result;
-    }
-
-    private static Folder getFolderToPack(Console console)
-    {
-        PreCondition.assertNotNull(console, "console");
-
-        final Path folderPathToPack = getFolderPathToPack(console);
-        final FileSystem fileSystem = console.getFileSystem();
-        final Folder result = fileSystem.getFolder(folderPathToPack).await();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    public static boolean isVerbose(Console console)
-    {
-        boolean result = false;
-
-        CommandLineArgument verboseArgument = console.getCommandLine().get("verbose");
-        if (verboseArgument != null)
-        {
-            final String verboseArgumentValue = verboseArgument.getValue();
-            result = Strings.isNullOrEmpty(verboseArgumentValue) ||
-                Booleans.isTrue(java.lang.Boolean.valueOf(verboseArgumentValue));
-        }
-
-        return result;
-    }
-
-    public static Result<Void> verbose(Console console, String message)
-    {
-        return verbose(console, false, message);
-    }
-
-    public static Result<Void> verbose(Console console, boolean showTimestamp, String message)
-    {
-        PreCondition.assertNotNull(console, "console");
-        PreCondition.assertNotNull(message, "message");
-
-        Result<Void> result = Result.success();
-        if (isVerbose(console))
-        {
-            result = console.writeLine("VERBOSE" + (showTimestamp ? "(" + System.currentTimeMillis() + ")" : "") + ": " + message)
-                .then(() -> {});
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
     }
 
     public static void main(String[] args)

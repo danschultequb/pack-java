@@ -64,35 +64,11 @@ public interface QubPackTests
                         () -> main((Console)null));
                 });
 
-                runner.test("with \"/?\"", (Test test) ->
-                {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
-                    try (final Console console = new Console(Iterable.create("/?")))
-                    {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-
-                        main(console);
-                        test.assertEqual(-1, console.getExitCode());
-                    }
-                    test.assertEqual(
-                        Iterable.create(
-                            "Usage: qub-pack [[-folder=]<folder-path-to-pack>] [-verbose]",
-                            "  Used to package source and compiled code in source code projects.",
-                            "  -folder: The folder to pack. This can be specified either with the -folder",
-                            "           argument name or without it.",
-                            "  -verbose: Whether or not to show verbose logs."
-                        ),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()));
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
-                });
-
                 runner.test("with \"-?\"", (Test test) ->
                 {
                     final InMemoryByteStream output = new InMemoryByteStream();
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    try (final Console console = new Console(Iterable.create("-?")))
+                    try (final Console console = new Console(CommandLineArguments.create("-?")))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -102,12 +78,12 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Usage: qub-pack [[-folder=]<folder-path-to-pack>] [-verbose]",
+                            "Usage: qub-pack [[--folder=]<folder-to-pack>] [--verbose] [--profiler] [--help]",
                             "  Used to package source and compiled code in source code projects.",
-                            "  -folder: The folder to pack. This can be specified either with the -folder",
-                            "           argument name or without it.",
-                            "  -verbose: Whether or not to show verbose logs."
-                        ),
+                            "  --folder: The folder to pack. Defaults to the current folder.",
+                            "  --verbose: Whether or not to show verbose logs.",
+                            "  --profiler: Whether or not this application should pause before it is run to allow a profiler to be attached.",
+                            "  --help(?): Show the help message for this application."),
                         Strings.getLines(output.asCharacterReadStream().getText().await()));
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                 });
@@ -384,7 +360,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = new Console(Iterable.create("-verbose")))
+                    try (final Console console = new Console(CommandLineArguments.create("-verbose")))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);

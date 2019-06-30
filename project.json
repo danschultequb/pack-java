@@ -1,22 +1,16 @@
 {
   "publisher": "qub",
   "project": "qub-java-pack",
-  "version": "10",
+  "version": "11",
   "java": {
     "mainClass": "qub.QubPack",
     "shortcutName": "qub-pack",
     "version": "1.8",
-    "sources": {
-      "version": "1.8"
-    },
-    "tests": {
-      "version": "1.8"
-    },
     "dependencies": [
       {
         "publisher": "qub",
         "project": "qub-java-test",
-        "version": "3"
+        "version": "4"
       }
     ]
   }
