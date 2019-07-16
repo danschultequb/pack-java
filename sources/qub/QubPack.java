@@ -117,6 +117,7 @@ public class QubPack
                     final JarCreator jarCreator = getJarCreator();
 
                     final Folder folderToPack = folderToPackParameter.getValue().await();
+
                     final Folder outputFolder = folderToPack.getFolder("outputs").await();
                     final Iterable<File> outputClassFiles = outputFolder.getFilesRecursively().await()
                         .where((File file) -> Comparer.equal(file.getFileExtension(), ".class"))
@@ -173,6 +174,37 @@ public class QubPack
                         }));
                     final File compiledSourcesJarFile = jarCreator.createJarFile(console, verbose.getValue().await()).await();
                     verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
+
+                    final Folder testFolder = folderToPack.getFolder("tests").await();
+                    if (testFolder.exists().await())
+                    {
+                        console.writeLine("Creating compiled tests jar file...").await();
+                        final Iterable<File> testJavaFiles = testFolder.getFilesRecursively().await()
+                            .where((File file) -> Comparer.equal(file.getFileExtension(), ".java"))
+                            .toList();
+                        jarCreator.setBaseFolder(outputFolder);
+                        jarCreator.setJarName(projectJson.getProject() + ".tests");
+                        jarCreator.setFiles(outputClassFiles
+                            .where((File outputClassFile) ->
+                            {
+                                Path outputClassFilePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
+                                if (outputClassFilePath.getSegments().last().contains("$"))
+                                {
+                                    final String outputClassFileRelativePathString = outputClassFilePath.toString();
+                                    final int dollarSignIndex = outputClassFileRelativePathString.lastIndexOf('$');
+                                    final String outputClassFileRelativePathStringWithoutDollarSign = outputClassFileRelativePathString.substring(0, dollarSignIndex);
+                                    outputClassFilePath = Path.parse(outputClassFileRelativePathStringWithoutDollarSign);
+                                }
+                                final Path outputClassFileRelativePath = outputClassFilePath;
+                                return testJavaFiles.contains((File testJavaFile) ->
+                                {
+                                    final Path testJavaFileRelativePath = testJavaFile.relativeTo(testFolder).withoutFileExtension();
+                                    return outputClassFileRelativePath.equals(testJavaFileRelativePath);
+                                });
+                            }));
+                        final File compiledTestsJarFile = jarCreator.createJarFile(console, verbose.getValue().await()).await();
+                        verbose.writeLine("Created " + compiledTestsJarFile + ".").await();
+                    }
                 }
             }
             finally

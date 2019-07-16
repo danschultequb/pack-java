@@ -81,7 +81,7 @@ public interface QubPackTests
                             "Usage: qub-pack [[--folder=]<folder-to-pack>] [--verbose] [--profiler] [--help]",
                             "  Used to package source and compiled code in source code projects.",
                             "  --folder: The folder to pack. Defaults to the current folder.",
-                            "  --verbose: Whether or not to show verbose logs.",
+                            "  --verbose(v): Whether or not to show verbose logs.",
                             "  --profiler: Whether or not this application should pause before it is run to allow a profiler to be attached.",
                             "  --help(?): Show the help message for this application."),
                         Strings.getLines(output.asCharacterReadStream().getText().await()));
@@ -375,17 +375,17 @@ public interface QubPackTests
                         Iterable.create(
                             "Compiling...",
                             "VERBOSE: Parsing project.json...",
-                            "VERBOSE: Parsing outputs/parse.json...",
-                            "VERBOSE: Updating outputs/parse.json...",
+                            "VERBOSE: Parsing outputs/build.json...",
+                            "VERBOSE: Updating outputs/build.json...",
                             "VERBOSE: Setting project.json...",
                             "VERBOSE: Setting source files...",
-                            "VERBOSE: Writing parse.json file...",
-                            "VERBOSE: Done writing parse.json file...",
                             "VERBOSE: Detecting java source files to compile...",
                             "VERBOSE: Compiling all source files.",
                             "VERBOSE: Starting compilation...",
                             "VERBOSE: Running javac -d /outputs -Xlint:unchecked -Xlint:deprecation -classpath /outputs sources/A.java...",
                             "VERBOSE: Compilation finished.",
+                            "VERBOSE: Writing build.json file...",
+                            "VERBOSE: Done writing build.json file...",
                             "Running tests...",
                             "VERBOSE: java.exe -classpath /outputs qub.ConsoleTestRunner A",
                             "",
@@ -407,6 +407,178 @@ public interface QubPackTests
                             "A.class",
                             ""),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                });
+
+                runner.test("with test folder", (Test test) ->
+                {
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final ProjectJSON projectJSON = new ProjectJSON();
+                    projectJSON.setProject("my-project");
+                    projectJSON.setPublisher("me");
+                    projectJSON.setVersion("34");
+                    projectJSON.setJava(new ProjectJSONJava());
+                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
+                    fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
+                    fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
+                    try (final Console console = new Console())
+                    {
+                        console.setOutputByteWriteStream(output);
+                        console.setErrorByteWriteStream(error);
+                        console.setFileSystem(fileSystem);
+                        console.setCurrentFolderPathString("/");
+
+                        main(console);
+                        test.assertEqual(0, console.getExitCode());
+                    }
+                    test.assertEqual(
+                        Iterable.create(
+                            "Compiling...",
+                            "Running tests...",
+                            "",
+                            "Creating sources jar file...",
+                            "Creating compiled sources jar file...",
+                            "Creating compiled tests jar file..."),
+                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "A.java",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "A.class",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "ATests.class",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
+                });
+
+                runner.test("with test folder with inner class", (Test test) ->
+                {
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final ProjectJSON projectJSON = new ProjectJSON();
+                    projectJSON.setProject("my-project");
+                    projectJSON.setPublisher("me");
+                    projectJSON.setVersion("34");
+                    projectJSON.setJava(new ProjectJSONJava());
+                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
+                    fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
+                    fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests$Inner.class", "again").await();
+                    try (final Console console = new Console())
+                    {
+                        console.setOutputByteWriteStream(output);
+                        console.setErrorByteWriteStream(error);
+                        console.setFileSystem(fileSystem);
+                        console.setCurrentFolderPathString("/");
+
+                        main(console);
+                        test.assertEqual(0, console.getExitCode());
+                    }
+                    test.assertEqual(
+                        Iterable.create(
+                            "Compiling...",
+                            "Running tests...",
+                            "",
+                            "Creating sources jar file...",
+                            "Creating compiled sources jar file...",
+                            "Creating compiled tests jar file..."),
+                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "A.java",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "A.class",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "ATests$Inner.class",
+                            "ATests.class",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
+                });
+
+                runner.test("with test folder with anonymous class", (Test test) ->
+                {
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    final ProjectJSON projectJSON = new ProjectJSON();
+                    projectJSON.setProject("my-project");
+                    projectJSON.setPublisher("me");
+                    projectJSON.setVersion("34");
+                    projectJSON.setJava(new ProjectJSONJava());
+                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
+                    fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
+                    fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests$1.class", "again").await();
+                    try (final Console console = new Console())
+                    {
+                        console.setOutputByteWriteStream(output);
+                        console.setErrorByteWriteStream(error);
+                        console.setFileSystem(fileSystem);
+                        console.setCurrentFolderPathString("/");
+
+                        main(console);
+                        test.assertEqual(0, console.getExitCode());
+                    }
+                    test.assertEqual(
+                        Iterable.create(
+                            "Compiling...",
+                            "Running tests...",
+                            "",
+                            "Creating sources jar file...",
+                            "Creating compiled sources jar file...",
+                            "Creating compiled tests jar file..."),
+                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "A.java",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "A.class",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Files:",
+                            "ATests$1.class",
+                            "ATests.class",
+                            ""),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
                 });
             });
         });
