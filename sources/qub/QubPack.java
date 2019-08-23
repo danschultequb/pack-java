@@ -154,24 +154,7 @@ public class QubPack
                         manifestFile.setContentsAsString(manifestFileContents).await();
                         jarCreator.setManifestFile(manifestFile);
                     }
-                    jarCreator.setFiles(outputClassFiles
-                        .where((File outputClassFile) ->
-                        {
-                            Path outputClassFilePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
-                            if (outputClassFilePath.getSegments().last().contains("$"))
-                            {
-                                final String outputClassFileRelativePathString = outputClassFilePath.toString();
-                                final int dollarSignIndex = outputClassFileRelativePathString.lastIndexOf('$');
-                                final String outputClassFileRelativePathStringWithoutDollarSign = outputClassFileRelativePathString.substring(0, dollarSignIndex);
-                                outputClassFilePath = Path.parse(outputClassFileRelativePathStringWithoutDollarSign);
-                            }
-                            final Path outputClassFileRelativePath = outputClassFilePath;
-                            return sourceJavaFiles.contains((File sourceJavaFile) ->
-                            {
-                                final Path sourceJavaFileRelativePath = sourceJavaFile.relativeTo(sourceFolder).withoutFileExtension();
-                                return outputClassFileRelativePath.equals(sourceJavaFileRelativePath);
-                            });
-                        }));
+                    jarCreator.setFiles(QubPack.getSourceClassFiles(outputFolder, outputClassFiles, sourceFolder, sourceJavaFiles));
                     final File compiledSourcesJarFile = jarCreator.createJarFile(console, verbose.getValue().await()).await();
                     verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
 
@@ -184,24 +167,7 @@ public class QubPack
                             .toList();
                         jarCreator.setBaseFolder(outputFolder);
                         jarCreator.setJarName(projectJson.getProject() + ".tests");
-                        jarCreator.setFiles(outputClassFiles
-                            .where((File outputClassFile) ->
-                            {
-                                Path outputClassFilePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
-                                if (outputClassFilePath.getSegments().last().contains("$"))
-                                {
-                                    final String outputClassFileRelativePathString = outputClassFilePath.toString();
-                                    final int dollarSignIndex = outputClassFileRelativePathString.lastIndexOf('$');
-                                    final String outputClassFileRelativePathStringWithoutDollarSign = outputClassFileRelativePathString.substring(0, dollarSignIndex);
-                                    outputClassFilePath = Path.parse(outputClassFileRelativePathStringWithoutDollarSign);
-                                }
-                                final Path outputClassFileRelativePath = outputClassFilePath;
-                                return testJavaFiles.contains((File testJavaFile) ->
-                                {
-                                    final Path testJavaFileRelativePath = testJavaFile.relativeTo(testFolder).withoutFileExtension();
-                                    return outputClassFileRelativePath.equals(testJavaFileRelativePath);
-                                });
-                            }));
+                        jarCreator.setFiles(QubPack.getSourceClassFiles(outputFolder, outputClassFiles, testFolder, testJavaFiles));
                         final File compiledTestsJarFile = jarCreator.createJarFile(console, verbose.getValue().await()).await();
                         verbose.writeLine("Created " + compiledTestsJarFile + ".").await();
                     }
@@ -216,6 +182,38 @@ public class QubPack
                 }
             }
         }
+    }
+
+    public static boolean isSourceClassFile(Folder outputFolder, File outputClassFile, Folder sourceFolder, Iterable<File> sourceJavaFiles)
+    {
+        PreCondition.assertNotNull(outputFolder, "outputFolder");
+        PreCondition.assertNotNull(outputClassFile, "outputClassFile");
+        PreCondition.assertNotNull(sourceFolder, "sourceFolder");
+        PreCondition.assertNotNull(sourceJavaFiles, "sourceJavaFiles");
+
+        Path outputClassFilePath = outputClassFile.relativeTo(outputFolder).withoutFileExtension();
+        if (outputClassFilePath.getSegments().last().contains("$"))
+        {
+            final String outputClassFileRelativePathString = outputClassFilePath.toString();
+            final int dollarSignIndex = outputClassFileRelativePathString.lastIndexOf('$');
+            final String outputClassFileRelativePathStringWithoutDollarSign = outputClassFileRelativePathString.substring(0, dollarSignIndex);
+            outputClassFilePath = Path.parse(outputClassFileRelativePathStringWithoutDollarSign);
+        }
+        final Path outputClassFileRelativePath = outputClassFilePath;
+        return sourceJavaFiles.contains((File sourceJavaFile) ->
+        {
+            final Path sourceJavaFileRelativePath = sourceJavaFile.relativeTo(sourceFolder).withoutFileExtension();
+            return outputClassFileRelativePath.equals(sourceJavaFileRelativePath);
+        });
+    }
+
+    public static Iterable<File> getSourceClassFiles(Folder outputFolder, Iterable<File> outputClassFiles, Folder sourceFolder, Iterable<File> sourceJavaFiles)
+    {
+        return outputClassFiles
+            .where((File outputClassFile) ->
+            {
+                return QubPack.isSourceClassFile(outputFolder, outputClassFile, sourceFolder, sourceJavaFiles);
+            });
     }
 
     public static void main(String[] args)

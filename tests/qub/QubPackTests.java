@@ -387,7 +387,7 @@ public interface QubPackTests
                             "VERBOSE: Writing build.json file...",
                             "VERBOSE: Done writing build.json file...",
                             "Running tests...",
-                            "VERBOSE: java.exe -classpath /outputs qub.ConsoleTestRunner A",
+                            "VERBOSE: java.exe -classpath /outputs qub.ConsoleTestRunner --profiler=false --testjson=true --output-folder=/outputs A",
                             "",
                             "Creating sources jar file...",
                             "VERBOSE: Created /outputs/my-project.sources.jar.",
