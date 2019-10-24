@@ -170,7 +170,7 @@ public interface JavaJarCreatorTests
                     }
 
                     final String outputText = output.asCharacterReadStream().getText().await();
-                    test.assertContains(outputText, "/jar");
+                    test.assertContains(outputText, " jar ");
                     test.assertContains(outputText, " cf ");
                     test.assertContains(outputText, "/qub-java-pack/hello.jar");
                     test.assertEqual(
@@ -214,7 +214,7 @@ public interface JavaJarCreatorTests
                         }
 
                         final String outputText = output.asCharacterReadStream().getText().await();
-                        test.assertContains(outputText, "/jar");
+                        test.assertContains(outputText, " jar ");
                         test.assertContains(outputText, " cfm ");
                         test.assertContains(outputText, jarFile.toString());
                         test.assertContains(outputText, manifestFile.relativeTo(baseFolder).toString());
@@ -262,7 +262,7 @@ public interface JavaJarCreatorTests
                     }
 
                     final String outputText = output.asCharacterReadStream().getText().await();
-                    test.assertContains(outputText, "/jar");
+                    test.assertContains(outputText, " jar ");
                     test.assertContains(outputText, " cf ");
                     test.assertContains(outputText, jarFile.toString());
                     test.assertContains(outputText, licenseFile.relativeTo(baseFolder).toString());
@@ -312,7 +312,7 @@ public interface JavaJarCreatorTests
                         }
 
                         final String outputText = output.asCharacterReadStream().getText().await();
-                        test.assertContains(outputText, "/jar");
+                        test.assertContains(outputText, " jar ");
                         test.assertContains(outputText, " cfm ");
                         test.assertContains(outputText, manifestFile.relativeTo(baseFolder).toString());
                         test.assertContains(outputText, jarFile.toString());
