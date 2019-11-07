@@ -6,26 +6,6 @@ public interface QubPackTests
     {
         runner.testGroup(QubPack.class, () ->
         {
-            runner.testGroup("setQubTest(QubTest)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final QubPack qubPack = new QubPack();
-                    test.assertSame(qubPack, qubPack.setQubTest(null));
-                    final QubTest qubTest = qubPack.getQubTest();
-                    test.assertNotNull(qubTest);
-                    test.assertSame(qubTest, qubPack.getQubTest());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final QubPack qubPack = new QubPack();
-                    final QubTest qubTest = qubPack.getQubTest();
-                    test.assertSame(qubPack, qubPack.setQubTest(qubTest));
-                    test.assertSame(qubTest, qubPack.getQubTest());
-                });
-            });
-
             runner.testGroup("setJarCreator(JarCreator)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -107,7 +87,7 @@ public interface QubPackTests
                     test.assertEqual(
                         Iterable.create(
                             "ERROR: The file at \"/project.json\" doesn't exist."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                 });
 
@@ -137,7 +117,7 @@ public interface QubPackTests
                     test.assertEqual(
                         Iterable.create(
                             "ERROR: No java source files found in /."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                 });
 
@@ -172,7 +152,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A"))));
 
                         main(console);
 
@@ -183,7 +173,7 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
                         test.assertEqual(0, console.getExitCode());
@@ -234,7 +224,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A$B", "A"))));
 
                         main(console);
 
@@ -245,7 +245,7 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
                         test.assertEqual(0, console.getExitCode());
@@ -298,7 +298,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A$1", "A$2", "A"))));
 
                         main(console);
 
@@ -309,7 +319,7 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
                         test.assertEqual(0, console.getExitCode());
@@ -361,7 +371,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A"))));
 
                         main(console);
 
@@ -372,7 +392,7 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
                         test.assertEqual(0, console.getExitCode());
@@ -429,7 +449,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(true)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A"))));
 
                         main(console);
 
@@ -448,13 +478,13 @@ public interface QubPackTests
                                 "VERBOSE: Writing build.json file...",
                                 "VERBOSE: Done writing build.json file.",
                                 "Running tests...",
-                                "VERBOSE: java.exe -classpath /outputs qub.ConsoleTestRunner --profiler=false --testjson=true --output-folder=/outputs --coverage=None A",
+                                "VERBOSE: Running /: java -classpath /outputs qub.ConsoleTestRunner --profiler=false --verbose=true --testjson=true --output-folder=/outputs --coverage=None A",
                                 "",
                                 "Creating sources jar file...",
                                 "VERBOSE: Created /outputs/my-project.sources.jar.",
                                 "Creating compiled sources jar file...",
                                 "VERBOSE: Created /outputs/my-project.jar."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
                         test.assertEqual(0, console.getExitCode());
@@ -505,7 +535,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests"))));
 
                         main(console);
                         test.assertEqual(0, console.getExitCode());
@@ -518,7 +558,7 @@ public interface QubPackTests
                             "Creating sources jar file...",
                             "Creating compiled sources jar file...",
                             "Creating compiled tests jar file..."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
                         Iterable.create(
@@ -573,7 +613,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests$Inner", "ATests"))));
 
                         main(console);
                         test.assertEqual(0, console.getExitCode());
@@ -586,7 +636,7 @@ public interface QubPackTests
                             "Creating sources jar file...",
                             "Creating compiled sources jar file...",
                             "Creating compiled tests jar file..."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()));
+                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
                         Iterable.create(
@@ -642,7 +692,17 @@ public interface QubPackTests
                                 .addXlintDeprecation()
                                 .addClasspath("/outputs")
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
-                                .setFunctionAutomatically()));
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests$1", "ATests"))));
 
                         main(console);
 
@@ -654,7 +714,7 @@ public interface QubPackTests
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file...",
                                 "Creating compiled tests jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
 
                         test.assertEqual(0, console.getExitCode());
                     }
@@ -685,13 +745,8 @@ public interface QubPackTests
 
     static void main(Console console)
     {
-        final QubTest test = new QubTest();
-        test.setJavaRunner(new FakeJavaRunner());
-
         final QubPack pack = new QubPack();
-        pack.setQubTest(test);
         pack.setJarCreator(new FakeJarCreator());
-        pack.setShowTotalDuration(false);
 
         pack.main(console);
     }

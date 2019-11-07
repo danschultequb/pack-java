@@ -2,38 +2,7 @@ package qub;
 
 public class QubPack
 {
-    private QubTest qubTest;
     private JarCreator jarCreator;
-    private Boolean showTotalDuration;
-
-    /**
-     * Set the QubTest object that will be used to test the source code.
-     * @param qubTest The QubTest object that will be used to test the source code.
-     * @return This object for method chaining.
-     */
-    public QubPack setQubTest(QubTest qubTest)
-    {
-        this.qubTest = qubTest;
-        return this;
-    }
-
-    /**
-     * Get the QubTest object that will be used to test the source code. If no QubTest object has
-     * been set, a default one will be created and returned.
-     * @return The QubTest object that will be used to test the source code.
-     */
-    public QubTest getQubTest()
-    {
-        if (qubTest == null)
-        {
-            qubTest = new QubTest();
-        }
-        final QubTest result = qubTest;
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
 
     /**
      * Set the JarCreator that will be used to create jar files.
@@ -64,20 +33,6 @@ public class QubPack
         return result;
     }
 
-    public void setShowTotalDuration(boolean showTotalDuration)
-    {
-        this.showTotalDuration = showTotalDuration;
-    }
-
-    public boolean getShowTotalDuration()
-    {
-        if (showTotalDuration == null)
-        {
-            showTotalDuration = true;
-        }
-        return showTotalDuration;
-    }
-
     public void main(Console console)
     {
         PreCondition.assertNotNull(console, "console");
@@ -100,17 +55,11 @@ public class QubPack
             profiler.await();
             profiler.removeValue().await();
 
-            final boolean showTotalDuration = getShowTotalDuration();
             final Stopwatch stopwatch = console.getStopwatch();
-            if (showTotalDuration)
-            {
-                stopwatch.start();
-            }
+            stopwatch.start();
             try
             {
-                final QubTest qubTest = getQubTest();
-                qubTest.setShowTotalDuration(false);
-                qubTest.main(console);
+                console.setExitCode(QubTest.run(QubTest.getParameters(console)));
 
                 if (console.getExitCode() == 0)
                 {
@@ -175,11 +124,8 @@ public class QubPack
             }
             finally
             {
-                if (showTotalDuration)
-                {
-                    final Duration compilationDuration = stopwatch.stop().toSeconds();
-                    console.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
-                }
+                final Duration compilationDuration = stopwatch.stop().toSeconds();
+                console.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
             }
         }
     }
