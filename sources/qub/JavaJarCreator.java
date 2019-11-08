@@ -36,24 +36,27 @@ public class JavaJarCreator extends JarCreator
     }
 
     @Override
-    public Result<File> createJarFile(Process process, boolean isVerbose)
+    public Result<File> createJarFile(ProcessFactory processFactory, ByteWriteStream output, ByteWriteStream error, VerboseCharacterWriteStream verbose)
     {
-        PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNull(processFactory, "processFactory");
+        PreCondition.assertNotNull(output, "output");
+        PreCondition.assertNotNull(error, "error");
+        PreCondition.assertNotNull(verbose, "verbose");
 
         return Result.create(() ->
         {
-            final ProcessBuilder jar = process.getProcessBuilder("jar").await();
-            jar.redirectOutput(process.getOutputByteWriteStream());
-            jar.redirectError(process.getErrorByteWriteStream());
+            final ProcessBuilder jar = processFactory.getProcessBuilder("jar").await();
 
-            final Folder baseFolder = getBaseFolder();
+            final Folder baseFolder = this.getBaseFolder();
             jar.setWorkingFolder(baseFolder);
 
-            jar.addArguments(getJarCommandArguments());
+            jar.addArguments(this.getJarCommandArguments());
 
-            if (isVerbose)
+            if (verbose.isVerbose())
             {
-                process.getOutputCharacterWriteStream().writeLine(jar.getCommand()).await();
+                jar.redirectOutput(output);
+                jar.redirectError(error);
+                verbose.writeLine("Running " + jar.getCommand()).await();
             }
 
             jar.run().await();

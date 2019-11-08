@@ -13,11 +13,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/qub-java-test/24/qub-java-test.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-test/25/qub-java-test.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://C:/qub/qub/qub-java-test/24/qub-java-test.sources.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-test/25/qub-java-test.sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

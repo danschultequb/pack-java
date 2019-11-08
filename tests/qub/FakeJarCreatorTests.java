@@ -22,7 +22,12 @@ public interface FakeJarCreatorTests
 
                     jarCreator.setFiles(Iterable.create());
 
-                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
+                    final ProcessFactory processFactory = test.getProcess().getProcessFactory();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
+                    final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                     test.assertNotNull(jarFile);
                     test.assertTrue(jarFile.exists().await());
                     test.assertEqual(0, jarFile.getContents().await().length);
@@ -42,7 +47,12 @@ public interface FakeJarCreatorTests
 
                     jarCreator.setFiles(Iterable.create());
 
-                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
+                    final ProcessFactory processFactory = test.getProcess().getProcessFactory();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
+                    final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                     test.assertNotNull(jarFile);
                     test.assertTrue(jarFile.exists().await());
                     test.assertEqual(
@@ -69,7 +79,12 @@ public interface FakeJarCreatorTests
                         baseFolder.getFile("src/otherCode.java").await()
                     ));
 
-                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
+                    final ProcessFactory processFactory = test.getProcess().getProcessFactory();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
+                    final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                     test.assertNotNull(jarFile);
                     test.assertTrue(jarFile.exists().await());
                     test.assertEqual(
@@ -99,7 +114,12 @@ public interface FakeJarCreatorTests
                         baseFolder.getFile("src/otherCode.java").await()
                     ));
 
-                    final File jarFile = jarCreator.createJarFile(test.getProcess(), false).await();
+                    final ProcessFactory processFactory = test.getProcess().getProcessFactory();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
+                    final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                     test.assertNotNull(jarFile);
                     test.assertTrue(jarFile.exists().await());
                     test.assertEqual(

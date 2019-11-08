@@ -27,7 +27,7 @@ public interface JavaJarCreatorTests
                     jarCreator.setBaseFolder(baseFolder);
 
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
-                        () -> jarCreator.getJarCommandArguments());
+                        jarCreator::getJarCommandArguments);
                 });
 
                 runner.test("with no files set", (Test test) ->
@@ -41,7 +41,7 @@ public interface JavaJarCreatorTests
                     jarCreator.setJarName("hello");
 
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
-                        () -> jarCreator.getJarCommandArguments());
+                        jarCreator::getJarCommandArguments);
                 });
 
                 runner.test("with empty files set", (Test test) ->
@@ -145,11 +145,11 @@ public interface JavaJarCreatorTests
                 {
                     final JavaJarCreator jarCreator = new JavaJarCreator();
 
-                    final Process process = new Process();
+                    final Process process = test.getProcess();
+                    final ProcessFactory processFactory = process.getProcessFactory();
                     final InMemoryByteStream output = new InMemoryByteStream();
-                    process.setOutputByteWriteStream(output);
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    process.setErrorByteWriteStream(error);
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output.asCharacterReadStream());
 
                     final Folder baseFolder = process.getCurrentFolder().await();
                     jarCreator.setBaseFolder(baseFolder);
@@ -158,7 +158,7 @@ public interface JavaJarCreatorTests
 
                     jarCreator.setFiles(Iterable.create());
 
-                    final File jarFile = jarCreator.createJarFile(process, true).await();
+                    final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                     try
                     {
                         test.assertNotNull(jarFile);
@@ -184,11 +184,11 @@ public interface JavaJarCreatorTests
                 {
                     final JavaJarCreator jarCreator = new JavaJarCreator();
 
-                    final Process process = new Process();
+                    final Process process = test.getProcess();
+                    final ProcessFactory processFactory = process.getProcessFactory();
                     final InMemoryByteStream output = new InMemoryByteStream();
-                    process.setOutputByteWriteStream(output);
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    process.setErrorByteWriteStream(error);
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output.asCharacterReadStream());
 
                     final Folder baseFolder = process.getCurrentFolder().await();
                     jarCreator.setBaseFolder(baseFolder);
@@ -202,7 +202,7 @@ public interface JavaJarCreatorTests
 
                         jarCreator.setFiles(Iterable.create());
 
-                        final File jarFile = jarCreator.createJarFile(process, true).await();
+                        final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                         try
                         {
                             test.assertNotNull(jarFile);
@@ -230,11 +230,11 @@ public interface JavaJarCreatorTests
                 {
                     final JavaJarCreator jarCreator = new JavaJarCreator();
 
-                    final Process process = new Process();
+                    final Process process = test.getProcess();
+                    final ProcessFactory processFactory = process.getProcessFactory();
                     final InMemoryByteStream output = new InMemoryByteStream();
-                    process.setOutputByteWriteStream(output);
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    process.setErrorByteWriteStream(error);
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output.asCharacterReadStream());
 
                     final Folder baseFolder = process.getCurrentFolder().await();
                     jarCreator.setBaseFolder(baseFolder);
@@ -250,7 +250,7 @@ public interface JavaJarCreatorTests
                         qubPackJavaFile
                     ));
 
-                    final File jarFile = jarCreator.createJarFile(process, true).await();
+                    final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                     try
                     {
                         test.assertNotNull(jarFile);
@@ -275,11 +275,11 @@ public interface JavaJarCreatorTests
                 {
                     final JavaJarCreator jarCreator = new JavaJarCreator();
 
-                    final Process process = new Process();
+                    final Process process = test.getProcess();
+                    final ProcessFactory processFactory = process.getProcessFactory();
                     final InMemoryByteStream output = new InMemoryByteStream();
-                    process.setOutputByteWriteStream(output);
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    process.setErrorByteWriteStream(error);
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output.asCharacterReadStream());
 
                     final Folder baseFolder = process.getCurrentFolder().await();
                     jarCreator.setBaseFolder(baseFolder);
@@ -300,7 +300,7 @@ public interface JavaJarCreatorTests
                             qubPackJavaFile
                         ));
 
-                        final File jarFile = jarCreator.createJarFile(process, true).await();
+                        final File jarFile = jarCreator.createJarFile(processFactory, output, error, verbose).await();
                         try
                         {
                             test.assertNotNull(jarFile);

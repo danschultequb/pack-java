@@ -139,9 +139,12 @@ public abstract class JarCreator
 
     /**
      * Create and return a reference to the jar file.
-     * @param process The Process that will be used to run commands.
-     * @param isVerbose Whether or not to show verbose logs.
+     * @param processFactory The ProcessFactory that will be used to run commands.
+     * @param output The stream where output will be written to.
+     * @param error The stream where errors will be written to.
+     * @param verbose The stream where verbose logs will be written to.
      * @return The reference to the created jar file.
      */
-    public abstract Result<File> createJarFile(Process process, boolean isVerbose);
+    public abstract Result<File> createJarFile(ProcessFactory processFactory, ByteWriteStream output, ByteWriteStream error, VerboseCharacterWriteStream verbose);
+
 }

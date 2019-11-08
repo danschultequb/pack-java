@@ -3,9 +3,12 @@ package qub;
 public class FakeJarCreator extends JarCreator
 {
     @Override
-    public Result<File> createJarFile(Process process, boolean isVerbose)
+    public Result<File> createJarFile(ProcessFactory processFactory, ByteWriteStream output, ByteWriteStream error, VerboseCharacterWriteStream verbose)
     {
-        PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNull(processFactory, "processFactory");
+        PreCondition.assertNotNull(output, "output");
+        PreCondition.assertNotNull(error, "error");
+        PreCondition.assertNotNull(verbose, "verbose");
 
         return Result.create(() ->
         {

@@ -149,35 +149,55 @@ public interface JarCreatorTests
                 });
             });
 
-            runner.testGroup("createJarFile(Process,boolean)", () ->
+            runner.testGroup("createJarFile(ProcessFactory,ByteWriteStream,ByteWriteStream,VerboseCharacterWriteStream)", () ->
             {
-                runner.test("with null Process", (Test test) ->
+                runner.test("with null ProcessFactory", (Test test) ->
                 {
+                    final ProcessFactory processFactory = null;
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
                     final JarCreator jarCreator = creator.run();
-                    test.assertThrows(new PreConditionFailure("process cannot be null."),
-                        () -> jarCreator.createJarFile(null, false));
+                    test.assertThrows(new PreConditionFailure("processFactory cannot be null."),
+                        () -> jarCreator.createJarFile(processFactory, output, error, verbose));
                 });
 
                 runner.test("with no baseFolder set", (Test test) ->
                 {
+                    final ProcessFactory processFactory = new FakeProcessFactory(test.getParallelAsyncRunner(), test.getProcess().getCurrentFolderPath());
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
                     final JarCreator jarCreator = creator.run();
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
-                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                        () -> jarCreator.createJarFile(processFactory, output, error, verbose).await());
                 });
 
                 runner.test("with no jarName set", (Test test) ->
                 {
+                    final ProcessFactory processFactory = new FakeProcessFactory(test.getParallelAsyncRunner(), test.getProcess().getCurrentFolderPath());
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
                     final JarCreator jarCreator = creator.run();
 
                     final InMemoryFileSystem fileSystem = createFileSystem(test);
                     jarCreator.setBaseFolder(fileSystem.getFolder("/base/folder/").await());
 
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
-                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                        () -> jarCreator.createJarFile(processFactory, output, error, verbose).await());
                 });
 
                 runner.test("with no files set", (Test test) ->
                 {
+                    final ProcessFactory processFactory = new FakeProcessFactory(test.getParallelAsyncRunner(), test.getProcess().getCurrentFolderPath());
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
                     final JarCreator jarCreator = creator.run();
 
                     final InMemoryFileSystem fileSystem = createFileSystem(test);
@@ -186,11 +206,16 @@ public interface JarCreatorTests
                     jarCreator.setJarName("hello");
 
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
-                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                        () -> jarCreator.createJarFile(processFactory, output, error, verbose).await());
                 });
 
                 runner.test("with manifestFile set but no files set", (Test test) ->
                 {
+                    final ProcessFactory processFactory = new FakeProcessFactory(test.getParallelAsyncRunner(), test.getProcess().getCurrentFolderPath());
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(false, output.asCharacterReadStream());
+
                     final JarCreator jarCreator = creator.run();
 
                     final InMemoryFileSystem fileSystem = createFileSystem(test);
@@ -202,7 +227,7 @@ public interface JarCreatorTests
                     jarCreator.setManifestFile(baseFolder.getFile("manifest.file").await());
 
                     test.assertThrows(new PostConditionFailure("result cannot be null."),
-                        () -> jarCreator.createJarFile(test.getProcess(), false).await());
+                        () -> jarCreator.createJarFile(processFactory, output, error, verbose).await());
                 });
             });
 

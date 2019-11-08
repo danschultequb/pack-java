@@ -58,9 +58,13 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Usage: qub-pack [[--folder=]<folder-to-pack>] [--verbose] [--profiler] [--help]",
+                            "Usage: qub-pack [[--folder=]<folder-to-pack>] [--testjson] [--jvm.classpath=<jvm.classpath-value>] [--buildjson] [--warnings=<show|error|hide>] [--verbose] [--profiler] [--help]",
                             "  Used to package source and compiled code in source code projects.",
                             "  --folder: The folder to pack. Defaults to the current folder.",
+                            "  --testjson: Whether or not to write the test results to a test.json file.",
+                            "  --jvm.classpath: The classpath that was passed to the JVM when this application was started.",
+                            "  --buildjson: Whether or not to read and write a build.json file. Defaults to true.",
+                            "  --warnings: How to handle build warnings. Can be either \"show\", \"error\", or \"hide\". Defaults to \"show\".",
                             "  --verbose(v): Whether or not to show verbose logs.",
                             "  --profiler: Whether or not this application should pause before it is run to allow a profiler to be attached.",
                             "  --help(?): Show the help message for this application."),
