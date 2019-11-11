@@ -6,27 +6,6 @@ public interface QubPackTests
     {
         runner.testGroup(QubPack.class, () ->
         {
-            runner.testGroup("setJarCreator(JarCreator)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final QubPack qubPack = new QubPack();
-                    test.assertSame(qubPack, qubPack.setJarCreator(null));
-                    final JarCreator jarCreator = qubPack.getJarCreator();
-                    test.assertNotNull(jarCreator);
-                    test.assertTrue(jarCreator instanceof JavaJarCreator);
-                    test.assertSame(jarCreator, qubPack.getJarCreator());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final QubPack qubPack = new QubPack();
-                    final JarCreator jarCreator = new FakeJarCreator();
-                    test.assertSame(qubPack, qubPack.setJarCreator(jarCreator));
-                    test.assertSame(jarCreator, qubPack.getJarCreator());
-                });
-            });
-
             runner.testGroup("main(String[])", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -166,7 +145,19 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A"))));
+                                .addFullClassNamesToTest(Iterable.create("A")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePathStrings(Iterable.create("A.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
 
@@ -184,15 +175,13 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.class",
-                            ""),
+                            "Content Files:",
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                 });
 
@@ -238,7 +227,19 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A$B", "A"))));
+                                .addFullClassNamesToTest(Iterable.create("A$B", "A")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePathStrings(Iterable.create("A$B.class", "A.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
 
@@ -256,16 +257,14 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
+                            "Content Files:",
                             "A$B.class",
-                            "A.class",
-                            ""),
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                 });
 
@@ -312,7 +311,19 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A$1", "A$2", "A"))));
+                                .addFullClassNamesToTest(Iterable.create("A$1", "A$2", "A")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePathStrings(Iterable.create("A$1.class", "A$2.class", "A.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
 
@@ -330,17 +341,15 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
+                            "Content Files:",
                             "A$1.class",
                             "A$2.class",
-                            "A.class",
-                            ""),
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                 });
 
@@ -385,7 +394,20 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A"))));
+                                .addFullClassNamesToTest(Iterable.create("A")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addManifestFile("/outputs/META-INF/MANIFEST.MF")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically()));
 
                         main(console);
 
@@ -403,18 +425,16 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Manifest file:",
-                            "META-INF/MANIFEST.MF",
+                            "Manifest File:",
+                            "/outputs/META-INF/MANIFEST.MF",
                             "",
-                            "Files:",
-                            "A.class",
-                            ""),
+                            "Content Files:",
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                     test.assertEqual(
                         Iterable.create(
@@ -463,7 +483,25 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A"))));
+                                .addFullClassNamesToTest(Iterable.create("A")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
 
@@ -485,8 +523,10 @@ public interface QubPackTests
                                 "VERBOSE: Running /: java -classpath /outputs qub.ConsoleTestRunner --profiler=false --verbose=true --testjson=true --output-folder=/outputs --coverage=None A",
                                 "",
                                 "Creating sources jar file...",
+                                "VERBOSE: Running /sources: jar --create --file=my-project.sources.jar A.java",
                                 "VERBOSE: Created /outputs/my-project.sources.jar.",
                                 "Creating compiled sources jar file...",
+                                "VERBOSE: Running /outputs: jar --create --file=my-project.jar A.class",
                                 "VERBOSE: Created /outputs/my-project.jar."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
@@ -495,15 +535,13 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.class",
-                            ""),
+                            "Content Files:",
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                 });
 
@@ -549,7 +587,25 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A", "ATests"))));
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
                         test.assertEqual(0, console.getExitCode());
@@ -566,21 +622,18 @@ public interface QubPackTests
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.class",
-                            ""),
+                            "Content Files:",
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "ATests.class",
-                            ""),
+                            "Content Files:",
+                            "ATests.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
                 });
 
@@ -627,7 +680,25 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A", "ATests$Inner", "ATests"))));
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests$Inner", "ATests")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests$Inner.class", "ATests.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
                         test.assertEqual(0, console.getExitCode());
@@ -644,22 +715,19 @@ public interface QubPackTests
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.class",
-                            ""),
+                            "Content Files:",
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
+                            "Content Files:",
                             "ATests$Inner.class",
-                            "ATests.class",
-                            ""),
+                            "ATests.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
                 });
 
@@ -706,7 +774,25 @@ public interface QubPackTests
                                 .addTestJson(true)
                                 .addOutputFolder("/outputs")
                                 .addCoverage(Coverage.None)
-                                .addFullClassNamesToTest(Iterable.create("A", "ATests$1", "ATests"))));
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests$1", "ATests")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests$1.class", "ATests.class"))
+                                .setFunctionAutomatically()));
 
                         main(console);
 
@@ -725,22 +811,19 @@ public interface QubPackTests
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.java",
-                            ""),
+                            "Content Files:",
+                            "A.java"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
-                            "A.class",
-                            ""),
+                            "Content Files:",
+                            "A.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
                     test.assertEqual(
                         Iterable.create(
-                            "Files:",
+                            "Content Files:",
                             "ATests$1.class",
-                            "ATests.class",
-                            ""),
+                            "ATests.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
                 });
             });
@@ -750,8 +833,6 @@ public interface QubPackTests
     static void main(Console console)
     {
         final QubPack pack = new QubPack();
-        pack.setJarCreator(new FakeJarCreator());
-
         pack.main(console);
     }
 }

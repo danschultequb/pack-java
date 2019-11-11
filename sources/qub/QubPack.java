@@ -28,37 +28,6 @@ public class QubPack
         }
     }
 
-    private JarCreator jarCreator;
-
-    /**
-     * Set the JarCreator that will be used to create jar files.
-     * @param jarCreator The JarCreator that will be used to create jar files.
-     * @return This object for method chaining.
-     */
-    public QubPack setJarCreator(JarCreator jarCreator)
-    {
-        this.jarCreator = jarCreator;
-        return this;
-    }
-
-    /**
-     * Get the JarCreator that will be used to create jar files. If no JarCreator has been set, a
-     * default one will be created and returned.
-     * @return The JarCreator that will be used to create jar files.
-     */
-    public JarCreator getJarCreator()
-    {
-        if (jarCreator == null)
-        {
-            jarCreator = new JavaJarCreator();
-        }
-        final JarCreator result = jarCreator;
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
     public static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, Process process)
     {
         PreCondition.assertNotNull(parameters, "parameters");
@@ -119,22 +88,19 @@ public class QubPack
         return result;
     }
 
-    public int run(QubPackParameters parameters)
+    public static int run(QubPackParameters parameters)
     {
         PreCondition.assertNotNull(parameters, "parameters");
 
         int result = QubTest.run(parameters);
         if (result == 0)
         {
-            final JarCreator jarCreator = getJarCreator();
-
             final ProcessFactory processFactory = parameters.getProcessFactory();
             final Folder folderToPack = parameters.getFolderToPack();
             final CharacterWriteStream output = parameters.getOutputCharacterWriteStream();
             final ByteWriteStream outputByteWriteStream = parameters.getOutputByteWriteStream();
             final ByteWriteStream errorByteWriteStream = parameters.getErrorByteWriteStream();
             final VerboseCharacterWriteStream verbose = parameters.getVerbose();
-            final boolean isVerbose = verbose.isVerbose();
 
             final Folder outputFolder = folderToPack.getFolder("outputs").await();
             final Iterable<File> outputClassFiles = outputFolder.getFilesRecursively().await()
@@ -148,50 +114,104 @@ public class QubPack
 
             final File projectJsonFile = folderToPack.getFile("project.json").await();
             final ProjectJSON projectJson = ProjectJSON.parse(projectJsonFile).await();
+            final String project = projectJson.getProject();
 
             output.writeLine("Creating sources jar file...").await();
-            jarCreator.setBaseFolder(sourceFolder);
-            jarCreator.setJarName(projectJson.getProject() + ".sources");
-            jarCreator.setFiles(sourceJavaFiles);
-            final File sourcesJarFile = jarCreator.createJarFile(processFactory, outputByteWriteStream, errorByteWriteStream, verbose).await();
-            final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
-            sourcesJarFile.copyTo(sourcesJarFileInOutputsFolder).await();
-            sourcesJarFile.delete().await();
-            verbose.writeLine("Created " + sourcesJarFileInOutputsFolder + ".").await();
+            final File sourcesJarFile = sourceFolder.getFile(project + ".sources.jar").await();
+            final int createSourcesJarFileResult = QubPack.createJarFile(processFactory, sourceFolder, sourcesJarFile, sourceJavaFiles, verbose, outputByteWriteStream, errorByteWriteStream);
+            if (createSourcesJarFileResult == 0)
+            {
+                final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
+                sourcesJarFile.copyTo(sourcesJarFileInOutputsFolder).await();
+                sourcesJarFile.delete().await();
+                verbose.writeLine("Created " + sourcesJarFileInOutputsFolder + ".").await();
+            }
+            else
+            {
+                ++result;
+            }
 
             output.writeLine("Creating compiled sources jar file...").await();
-            jarCreator.setBaseFolder(outputFolder);
-            jarCreator.setJarName(projectJson.getProject());
+            File manifestFile = null;
             final String mainClass = projectJson.getJava().getMainClass();
             if (!Strings.isNullOrEmpty(mainClass))
             {
-                final File manifestFile = outputFolder.getFile("META-INF/MANIFEST.MF").await();
+                manifestFile = outputFolder.getFile("META-INF/MANIFEST.MF").await();
                 final String manifestFileContents =
                     "Manifest-Version: 1.0\n" +
                     "Main-Class: " + mainClass + "\n";
                 manifestFile.setContentsAsString(manifestFileContents).await();
-                jarCreator.setManifestFile(manifestFile);
             }
-            jarCreator.setFiles(QubPack.getSourceClassFiles(outputFolder, outputClassFiles, sourceFolder, sourceJavaFiles));
-            final File compiledSourcesJarFile = jarCreator.createJarFile(processFactory, outputByteWriteStream, errorByteWriteStream, verbose).await();
-            verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
+            final File compiledSourcesJarFile = outputFolder.getFile(project + ".jar").await();
+            final Iterable<File> compiledSourcesFile = QubPack.getSourceClassFiles(outputFolder, outputClassFiles, sourceFolder, sourceJavaFiles);
+            final int createCompiledSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, manifestFile, compiledSourcesJarFile, compiledSourcesFile, verbose, outputByteWriteStream, errorByteWriteStream);
+            if (createCompiledSourcesJarFileResult == 0)
+            {
+                verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
+            }
+            else
+            {
+                ++result;
+            }
 
             final Folder testFolder = folderToPack.getFolder("tests").await();
             if (testFolder.exists().await())
             {
                 output.writeLine("Creating compiled tests jar file...").await();
+                final File compiledTestsJarFile = outputFolder.getFile(projectJson.getProject() + ".tests.jar").await();
                 final Iterable<File> testJavaFiles = testFolder.getFilesRecursively().await()
                     .where((File file) -> Comparer.equal(file.getFileExtension(), ".java"))
                     .toList();
-                jarCreator.setBaseFolder(outputFolder);
-                jarCreator.setJarName(projectJson.getProject() + ".tests");
-                jarCreator.setFiles(QubPack.getSourceClassFiles(outputFolder, outputClassFiles, testFolder, testJavaFiles));
-                final File compiledTestsJarFile = jarCreator.createJarFile(processFactory, outputByteWriteStream, errorByteWriteStream, verbose).await();
-                verbose.writeLine("Created " + compiledTestsJarFile + ".").await();
+                final Iterable<File> testSourceClassFiles = QubPack.getSourceClassFiles(outputFolder, outputClassFiles, testFolder, testJavaFiles);
+                final int createTestSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, compiledTestsJarFile, testSourceClassFiles, verbose, outputByteWriteStream, errorByteWriteStream);
+                if (createTestSourcesJarFileResult == 0)
+                {
+                    verbose.writeLine("Created " + compiledTestsJarFile + ".").await();
+                }
+                else
+                {
+                    ++result;
+                }
             }
         }
 
         return result;
+    }
+
+    private static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    {
+        return QubPack.createJarFile(processFactory, baseFolder, null, jarFile, files, verbose, outputByteWriteStream, errorByteWriteStream);
+    }
+
+    private static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    {
+        PreCondition.assertNotNull(processFactory, "processFactory");
+        PreCondition.assertNotNull(baseFolder, "baseFolder");
+        PreCondition.assertNotNull(jarFile, "jarFile");
+        PreCondition.assertNotNullAndNotEmpty(files, "files");
+        PreCondition.assertNotNull(verbose, "verbose");
+        PreCondition.assertNotNull(outputByteWriteStream, "outputByteWriteStream");
+        PreCondition.assertNotNull(errorByteWriteStream, "errorByteWriteStream");
+
+        final JarProcessBuilder jar = JarProcessBuilder.get(processFactory).await()
+            .setWorkingFolder(baseFolder)
+            .addCreate()
+            .addJarFile(jarFile);
+        if (manifestFile != null)
+        {
+            jar.addManifestFile(manifestFile);
+        }
+
+        jar.addContentFiles(files);
+
+        if (verbose.isVerbose())
+        {
+            jar.redirectOutput(outputByteWriteStream);
+            jar.redirectError(errorByteWriteStream);
+            verbose.writeLine("Running " + jar.getCommand()).await();
+        }
+
+        return jar.run().await();
     }
 
     public static boolean isSourceClassFile(Folder outputFolder, File outputClassFile, Folder sourceFolder, Iterable<File> sourceJavaFiles)
