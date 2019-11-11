@@ -20,7 +20,7 @@ public interface QubPackTests
                 runner.test("with null", (Test test) ->
                 {
                     test.assertThrows(new PreConditionFailure("console cannot be null."),
-                        () -> main((Console)null));
+                        () -> QubPack.main((Console)null));
                 });
 
                 runner.test("with \"-?\"", (Test test) ->
@@ -32,7 +32,8 @@ public interface QubPackTests
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
 
-                        main(console);
+                        QubPack.main(console);
+
                         test.assertEqual(-1, console.getExitCode());
                     }
                     test.assertEqual(
@@ -64,7 +65,8 @@ public interface QubPackTests
                         console.setFileSystem(fileSystem);
                         console.setCurrentFolderPathString("/");
 
-                        main(console);
+                        QubPack.main(console);
+
                         test.assertEqual(1, console.getExitCode());
                     }
                     test.assertEqual(
@@ -94,7 +96,8 @@ public interface QubPackTests
                         console.setFileSystem(fileSystem);
                         console.setCurrentFolderPathString("/");
 
-                        main(console);
+                        QubPack.main(console);
+
                         test.assertEqual(1, console.getExitCode());
                     }
                     test.assertEqual(
@@ -159,7 +162,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("A.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
 
                         test.assertEqual(
                             Iterable.create(
@@ -241,7 +244,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("A$B.class", "A.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
 
                         test.assertEqual(
                             Iterable.create(
@@ -325,7 +328,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("A$1.class", "A$2.class", "A.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
 
                         test.assertEqual(
                             Iterable.create(
@@ -409,7 +412,7 @@ public interface QubPackTests
                                 .addContentFilePath("A.class")
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
 
                         test.assertEqual(
                             Iterable.create(
@@ -503,7 +506,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
 
                         test.assertEqual(
                             Iterable.create(
@@ -607,7 +610,8 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
+
                         test.assertEqual(0, console.getExitCode());
                     }
                     test.assertEqual(
@@ -700,7 +704,8 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests$Inner.class", "ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
+
                         test.assertEqual(0, console.getExitCode());
                     }
                     test.assertEqual(
@@ -794,7 +799,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests$1.class", "ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        main(console);
+                        QubPack.main(console);
 
                         test.assertEqual(
                             Iterable.create(
@@ -828,11 +833,5 @@ public interface QubPackTests
                 });
             });
         });
-    }
-
-    static void main(Console console)
-    {
-        final QubPack pack = new QubPack();
-        pack.main(console);
     }
 }

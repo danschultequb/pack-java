@@ -1,13 +1,13 @@
 package qub;
 
-public class QubPack
+public interface QubPack
 {
-    public static void main(String[] args)
+    static void main(String[] args)
     {
-        Console.run(args, (Console console) -> new QubPack().main(console));
+        Console.run(args, QubPack::main);
     }
 
-    public void main(Console console)
+    static void main(Console console)
     {
         PreCondition.assertNotNull(console, "console");
 
@@ -18,7 +18,7 @@ public class QubPack
             stopwatch.start();
             try
             {
-                console.setExitCode(this.run(parameters));
+                console.setExitCode(QubPack.run(parameters));
             }
             finally
             {
@@ -28,7 +28,7 @@ public class QubPack
         }
     }
 
-    public static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, Process process)
+    static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, Process process)
     {
         PreCondition.assertNotNull(parameters, "parameters");
         PreCondition.assertNotNull(process, "process");
@@ -43,7 +43,7 @@ public class QubPack
      * @param process The process to get the QubPackParameters from.
      * @return The QubPackParameters.
      */
-    public static QubPackParameters getParameters(Process process)
+    static QubPackParameters getParameters(Process process)
     {
         PreCondition.assertNotNull(process, "process");
 
@@ -88,7 +88,7 @@ public class QubPack
         return result;
     }
 
-    public static int run(QubPackParameters parameters)
+    static int run(QubPackParameters parameters)
     {
         PreCondition.assertNotNull(parameters, "parameters");
 
@@ -178,12 +178,12 @@ public class QubPack
         return result;
     }
 
-    private static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
     {
         return QubPack.createJarFile(processFactory, baseFolder, null, jarFile, files, verbose, outputByteWriteStream, errorByteWriteStream);
     }
 
-    private static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
     {
         PreCondition.assertNotNull(processFactory, "processFactory");
         PreCondition.assertNotNull(baseFolder, "baseFolder");
@@ -214,7 +214,7 @@ public class QubPack
         return jar.run().await();
     }
 
-    public static boolean isSourceClassFile(Folder outputFolder, File outputClassFile, Folder sourceFolder, Iterable<File> sourceJavaFiles)
+    static boolean isSourceClassFile(Folder outputFolder, File outputClassFile, Folder sourceFolder, Iterable<File> sourceJavaFiles)
     {
         PreCondition.assertNotNull(outputFolder, "outputFolder");
         PreCondition.assertNotNull(outputClassFile, "outputClassFile");
@@ -237,7 +237,7 @@ public class QubPack
         });
     }
 
-    public static Iterable<File> getSourceClassFiles(Folder outputFolder, Iterable<File> outputClassFiles, Folder sourceFolder, Iterable<File> sourceJavaFiles)
+    static Iterable<File> getSourceClassFiles(Folder outputFolder, Iterable<File> outputClassFiles, Folder sourceFolder, Iterable<File> sourceJavaFiles)
     {
         return outputClassFiles
             .where((File outputClassFile) ->
