@@ -52,7 +52,6 @@ public interface QubPack
             .setApplicationDescription("Used to package source and compiled code in source code projects.");
         final CommandLineParameter<Folder> folderToPackParameter = QubPack.addFolderToPack(parameters, process);
         final CommandLineParameterBoolean testJsonParameter = QubTest.addTestJsonParameter(parameters);
-        final CommandLineParameter<String> jvmClassPathParameter = QubTest.addJvmClassPathParameter(parameters);
         final CommandLineParameterBoolean buildJsonParameter = QubBuild.addBuildJsonParameter(parameters);
         final CommandLineParameter<Warnings> warningsParameter = QubBuild.addWarningsParameter(parameters);
         final CommandLineParameterVerbose verboseParameter = parameters.addVerbose(process);
@@ -72,14 +71,13 @@ public interface QubPack
             final EnvironmentVariables environmentVariables = process.getEnvironmentVariables();
             final ProcessFactory processFactory = process.getProcessFactory();
             final boolean testJson = testJsonParameter.removeValue().await();
-            final String jvmClassPath = jvmClassPathParameter.removeValue().await();
+            final String jvmClassPath = process.getJVMClasspath().await();
             final boolean buildJson = buildJsonParameter.removeValue().await();
             final Warnings warnings = warningsParameter.removeValue().await();
             final VerboseCharacterWriteStream verboseStream = verboseParameter.getVerboseCharacterWriteStream().await();
 
-            result = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher)
+            result = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
                 .setTestJson(testJson)
-                .setJvmClassPath(jvmClassPath)
                 .setBuildJson(buildJson)
                 .setWarnings(warnings)
                 .setVerbose(verboseStream);
