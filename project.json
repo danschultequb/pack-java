@@ -1,17 +1,16 @@
 {
   "publisher": "qub",
   "project": "qub-java-pack",
-  "version": "31",
+  "version": "32",
   "java": {
     "mainClass": "qub.QubPack",
     "shortcutName": "qub-pack",
     "version": "1.8",
-    "captureVMArguments": true,
     "dependencies": [
       {
         "publisher": "qub",
         "project": "qub-java-test",
-        "version": "33"
+        "version": "34"
       }
     ]
   }
