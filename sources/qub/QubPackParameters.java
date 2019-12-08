@@ -5,6 +5,8 @@ package qub;
  */
 public class QubPackParameters extends QubTestParameters
 {
+    private boolean packJson;
+
     /**
      * Create a new QubPackParameters object.
      * @param outputByteWriteStream The ByteWriteStream that output should be written to.
@@ -18,6 +20,17 @@ public class QubPackParameters extends QubTestParameters
     public QubPackParameters(ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath)
     {
         super(outputByteWriteStream, errorByteWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+    }
+
+    public QubPackParameters setPackJson(boolean packJson)
+    {
+        this.packJson = packJson;
+        return this;
+    }
+
+    public boolean getPackJson()
+    {
+        return this.packJson;
     }
 
     /**
@@ -38,8 +51,6 @@ public class QubPackParameters extends QubTestParameters
     @Override
     public QubPackParameters setCoverage(Coverage coverage)
     {
-        PreCondition.assertNotNull(coverage, "coverage");
-
         return (QubPackParameters)super.setCoverage(coverage);
     }
 
@@ -77,5 +88,10 @@ public class QubPackParameters extends QubTestParameters
     public QubPackParameters setVerbose(VerboseCharacterWriteStream verbose)
     {
         return (QubPackParameters)super.setVerbose(verbose);
+    }
+
+    public static boolean getPackJsonDefault()
+    {
+        return true;
     }
 }

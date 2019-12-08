@@ -38,9 +38,10 @@ public interface QubPackTests
                     }
                     test.assertEqual(
                         Iterable.create(
-                            "Usage: qub-pack [[--folder=]<folder-to-pack>] [--testjson] [--buildjson] [--warnings=<show|error|hide>] [--verbose] [--profiler] [--help]",
+                            "Usage: qub-pack [[--folder=]<folder-to-pack>] [--packjson] [--testjson] [--buildjson] [--warnings=<show|error|hide>] [--verbose] [--profiler] [--help]",
                             "  Used to package source and compiled code in source code projects.",
                             "  --folder: The folder to pack. Defaults to the current folder.",
+                            "  --packjson: Whether or not to read and write a pack.json file. Defaults to true.",
                             "  --testjson: Whether or not to write the test results to a test.json file.",
                             "  --buildjson: Whether or not to read and write a build.json file. Defaults to true.",
                             "  --warnings: How to handle build warnings. Can be either \"show\", \"error\", or \"hide\". Defaults to \"show\".",
@@ -837,6 +838,327 @@ public interface QubPackTests
                             "ATests$1.class",
                             "ATests.class"),
                         Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
+                });
+
+                runner.test("with --packjson=false", (Test test) ->
+                {
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    fileSystem.setFileContentAsString("/project.json", new ProjectJSON()
+                        .setProject("my-project")
+                        .setPublisher("me")
+                        .setVersion("34")
+                        .setJava(new ProjectJSONJava())
+                        .toString());
+                    fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
+                    fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
+                    fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
+                    try (final Console console = new Console(CommandLineArguments.create("--packjson=false")))
+                    {
+                        console.setOutputByteWriteStream(output);
+                        console.setErrorByteWriteStream(error);
+                        console.setFileSystem(fileSystem);
+                        console.setCurrentFolderPathString("/");
+
+                        final Folder currentFolder = console.getCurrentFolder().await();
+                        console.setJVMClasspath("/outputs");
+                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                            .add(new FakeJavacProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
+                                .addXlintUnchecked()
+                                .addXlintDeprecation()
+                                .addClasspath("/outputs")
+                                .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests.class"))
+                                .setFunctionAutomatically()));
+
+                        QubPack.main(console);
+
+                        test.assertEqual(
+                            Iterable.create(
+                                "Compiling 2 files...",
+                                "Running tests...",
+                                "",
+                                "Creating sources jar file...",
+                                "Creating compiled sources jar file...",
+                                "Creating compiled tests jar file..."),
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+
+                        test.assertEqual(0, console.getExitCode());
+                    }
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "A.java"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "A.class"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "ATests.class"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
+                });
+
+                runner.test("with --packjson=true but no pack.json file", (Test test) ->
+                {
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    fileSystem.setFileContentAsString("/project.json", new ProjectJSON()
+                        .setProject("my-project")
+                        .setPublisher("me")
+                        .setVersion("34")
+                        .setJava(new ProjectJSONJava())
+                        .toString());
+                    fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
+                    fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
+                    fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
+                    try (final Console console = new Console(CommandLineArguments.create("--packjson=true")))
+                    {
+                        console.setOutputByteWriteStream(output);
+                        console.setErrorByteWriteStream(error);
+                        console.setFileSystem(fileSystem);
+                        console.setCurrentFolderPathString("/");
+
+                        final Folder currentFolder = console.getCurrentFolder().await();
+                        console.setJVMClasspath("/outputs");
+                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                            .add(new FakeJavacProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
+                                .addXlintUnchecked()
+                                .addXlintDeprecation()
+                                .addClasspath("/outputs")
+                                .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests.class"))
+                                .setFunctionAutomatically()));
+
+                        QubPack.main(console);
+
+                        test.assertEqual(
+                            Iterable.create(
+                                "Compiling 2 files...",
+                                "Running tests...",
+                                "",
+                                "Creating sources jar file...",
+                                "Creating compiled sources jar file...",
+                                "Creating compiled tests jar file..."),
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+
+                        test.assertEqual(0, console.getExitCode());
+                    }
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "A.java"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "A.class"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "ATests.class"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
+                    test.assertEqual(
+                        new PackJSON()
+                            .setSourceFiles(Iterable.create(
+                                new PackJSONFile()
+                                    .setRelativePath("A.java")
+                                    .setLastModified(fileSystem.getFileLastModified("/sources/A.java").await())))
+                            .setSourceOutputFiles(Iterable.create(
+                                new PackJSONFile()
+                                    .setRelativePath("A.class")
+                                    .setLastModified(fileSystem.getFileLastModified("/outputs/A.class").await())))
+                            .setTestOutputFiles(Iterable.create(
+                                new PackJSONFile()
+                                    .setRelativePath("ATests.class")
+                                    .setLastModified(fileSystem.getFileLastModified("/outputs/ATests.class").await())))
+                            .toString(),
+                        fileSystem.getFileContentAsString("/outputs/pack.json").await());
+                });
+
+                runner.test("with --packjson=true and empty pack.json file", (Test test) ->
+                {
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
+                    fileSystem.setFileContentAsString("/project.json", new ProjectJSON()
+                        .setProject("my-project")
+                        .setPublisher("me")
+                        .setVersion("34")
+                        .setJava(new ProjectJSONJava())
+                        .toString()).await();
+                    fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
+                    fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
+                    fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
+                    fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
+
+                    fileSystem.setFileContentAsString("/outputs/pack.json", new PackJSON()
+                        .toString()).await();
+
+                    try (final Console console = new Console(CommandLineArguments.create("--packjson=true")))
+                    {
+                        console.setOutputByteWriteStream(output);
+                        console.setErrorByteWriteStream(error);
+                        console.setFileSystem(fileSystem);
+                        console.setCurrentFolderPathString("/");
+
+                        final Folder currentFolder = console.getCurrentFolder().await();
+                        console.setJVMClasspath("/outputs");
+                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                            .add(new FakeJavacProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
+                                .addXlintUnchecked()
+                                .addXlintDeprecation()
+                                .addClasspath("/outputs")
+                                .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeConsoleTestRunnerProcessRun()
+                                .setWorkingFolder(currentFolder)
+                                .addClasspath("/outputs")
+                                .addConsoleTestRunnerFullClassName()
+                                .addProfiler(false)
+                                .addVerbose(false)
+                                .addTestJson(true)
+                                .addOutputFolder("/outputs")
+                                .addCoverage(Coverage.None)
+                                .addFullClassNamesToTest(Iterable.create("A", "ATests")))
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("sources").await())
+                                .addCreate()
+                                .addJarFile("my-project.sources.jar")
+                                .addContentFilePath("A.java")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.jar")
+                                .addContentFilePath("A.class")
+                                .setFunctionAutomatically())
+                            .add(new FakeJarProcessRun()
+                                .setWorkingFolder(currentFolder.getFolder("outputs").await())
+                                .addCreate()
+                                .addJarFile("my-project.tests.jar")
+                                .addContentFilePathStrings(Iterable.create("ATests.class"))
+                                .setFunctionAutomatically()));
+
+                        QubPack.main(console);
+
+                        test.assertEqual(
+                            Iterable.create(
+                                "Compiling 2 files...",
+                                "Running tests...",
+                                "",
+                                "Creating sources jar file...",
+                                "Creating compiled sources jar file...",
+                                "Creating compiled tests jar file..."),
+                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+
+                        test.assertEqual(0, console.getExitCode());
+                    }
+                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "A.java"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.sources.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "A.class"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.jar").await()));
+                    test.assertEqual(
+                        Iterable.create(
+                            "Content Files:",
+                            "ATests.class"),
+                        Strings.getLines(fileSystem.getFileContentAsString("/outputs/my-project.tests.jar").await()));
+                    test.assertEqual(
+                        new PackJSON()
+                            .setSourceFiles(Iterable.create(
+                                new PackJSONFile()
+                                    .setRelativePath("A.java")
+                                    .setLastModified(fileSystem.getFileLastModified("/sources/A.java").await())))
+                            .setSourceOutputFiles(Iterable.create(
+                                new PackJSONFile()
+                                    .setRelativePath("A.class")
+                                    .setLastModified(fileSystem.getFileLastModified("/outputs/A.class").await())))
+                            .setTestOutputFiles(Iterable.create(
+                                new PackJSONFile()
+                                    .setRelativePath("ATests.class")
+                                    .setLastModified(fileSystem.getFileLastModified("/outputs/ATests.class").await())))
+                            .toString(),
+                        fileSystem.getFileContentAsString("/outputs/pack.json").await());
                 });
             });
         });
