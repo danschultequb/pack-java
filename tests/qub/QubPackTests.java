@@ -87,7 +87,7 @@ public interface QubPackTests
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
                     projectJSON.setJava(new ProjectJSONJava());
-                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final Console console = Console.create())
                     {
@@ -371,7 +371,7 @@ public interface QubPackTests
                         .setVersion("34")
                         .setJava(new ProjectJSONJava()
                             .setMainClass("A"));
-                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final Console console = Console.create())
@@ -461,7 +461,7 @@ public interface QubPackTests
                         .setPublisher("me")
                         .setVersion("34")
                         .setJava(new ProjectJSONJava());
-                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final Console console = Console.create("-verbose"))
@@ -564,7 +564,7 @@ public interface QubPackTests
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
                     projectJSON.setJava(new ProjectJSONJava());
-                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
@@ -658,7 +658,7 @@ public interface QubPackTests
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
                     projectJSON.setJava(new ProjectJSONJava());
-                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
@@ -754,7 +754,7 @@ public interface QubPackTests
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
                     projectJSON.setJava(new ProjectJSONJava());
-                    fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
+                    fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
