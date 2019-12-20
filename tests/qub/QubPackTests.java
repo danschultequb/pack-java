@@ -15,19 +15,19 @@ public interface QubPackTests
                 });
             });
 
-            runner.testGroup("main(Console)", () ->
+            runner.testGroup("main(Process)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(new PreConditionFailure("console cannot be null."),
-                        () -> QubPack.main((Console)null));
+                    test.assertThrows(new PreConditionFailure("process cannot be null."),
+                        () -> QubPack.main((Process)null));
                 });
 
                 runner.test("with \"-?\"", (Test test) ->
                 {
                     final InMemoryByteStream output = new InMemoryByteStream();
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    try (final Console console = new Console(CommandLineArguments.create("-?")))
+                    try (final Console console = Console.create("-?"))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -58,7 +58,7 @@ public interface QubPackTests
                     final InMemoryByteStream error = new InMemoryByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -89,7 +89,7 @@ public interface QubPackTests
                     projectJSON.setJava(new ProjectJSONJava());
                     fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -122,7 +122,7 @@ public interface QubPackTests
                             .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -165,6 +165,7 @@ public interface QubPackTests
 
                         QubPack.main(console);
 
+                        test.assertEqual("", error.asCharacterReadStream().getText().await());
                         test.assertEqual(
                             Iterable.create(
                                 "Compiling 1 file...",
@@ -173,7 +174,6 @@ public interface QubPackTests
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                        test.assertEqual("", error.asCharacterReadStream().getText().await());
 
                         test.assertEqual(0, console.getExitCode());
                     }
@@ -205,7 +205,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/A$B.class", "there").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -290,7 +290,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/A$1.class", "again").await();
                     fileSystem.setFileContentAsString("/outputs/A$2.class", "you").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -374,7 +374,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -464,7 +464,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/project.json", JSON.object(projectJSON::write).toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = new Console(CommandLineArguments.create("-verbose")))
+                    try (final Console console = Console.create("-verbose"))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -569,7 +569,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -664,7 +664,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     fileSystem.setFileContentAsString("/outputs/ATests$Inner.class", "again").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -760,7 +760,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     fileSystem.setFileContentAsString("/outputs/ATests$1.class", "again").await();
-                    try (final Console console = new Console())
+                    try (final Console console = Console.create())
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -856,7 +856,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
-                    try (final Console console = new Console(CommandLineArguments.create("--packjson=false")))
+                    try (final Console console = Console.create("--packjson=false"))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -951,7 +951,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
-                    try (final Console console = new Console(CommandLineArguments.create("--packjson=true")))
+                    try (final Console console = Console.create("--packjson=true"))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);
@@ -1066,7 +1066,7 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/pack.json", new PackJSON()
                         .toString()).await();
 
-                    try (final Console console = new Console(CommandLineArguments.create("--packjson=true")))
+                    try (final Console console = Console.create("--packjson=true"))
                     {
                         console.setOutputByteWriteStream(output);
                         console.setErrorByteWriteStream(error);

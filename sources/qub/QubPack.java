@@ -4,27 +4,20 @@ public interface QubPack
 {
     static void main(String[] args)
     {
-        Console.run(args, QubPack::main);
+        Process.run(args, QubPack::main);
     }
 
-    static void main(Console console)
+    static void main(Process process)
     {
-        PreCondition.assertNotNull(console, "console");
+        PreCondition.assertNotNull(process, "process");
 
-        final QubPackParameters parameters = QubPack.getParameters(console);
+        final QubPackParameters parameters = QubPack.getParameters(process);
         if (parameters != null)
         {
-            final Stopwatch stopwatch = console.getStopwatch();
-            stopwatch.start();
-            try
+            process.showDuration(() ->
             {
-                console.setExitCode(QubPack.run(parameters));
-            }
-            finally
-            {
-                final Duration compilationDuration = stopwatch.stop().toSeconds();
-                console.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
-            }
+                process.setExitCode(QubPack.run(parameters));
+            });
         }
     }
 
