@@ -224,7 +224,7 @@ public interface QubPack
 
             if (usePackJson && (shouldCreateSourcesJarFile || shouldCreateCompiledSourcesJarFile || shouldCreateCompiledTestsJarFile))
             {
-                packJsonFile.setContentsAsString(packJson.toString()).await();
+                packJsonFile.setContentsAsString(packJson.toString(JSONFormat.pretty)).await();
             }
         }
 

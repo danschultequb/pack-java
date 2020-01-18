@@ -1042,7 +1042,7 @@ public interface QubPackTests
                                 new PackJSONFile()
                                     .setRelativePath("ATests.class")
                                     .setLastModified(fileSystem.getFileLastModified("/outputs/ATests.class").await())))
-                            .toString(),
+                            .toString(JSONFormat.pretty),
                         fileSystem.getFileContentAsString("/outputs/pack.json").await());
                 });
 
@@ -1157,7 +1157,7 @@ public interface QubPackTests
                                 new PackJSONFile()
                                     .setRelativePath("ATests.class")
                                     .setLastModified(fileSystem.getFileLastModified("/outputs/ATests.class").await())))
-                            .toString(),
+                            .toString(JSONFormat.pretty),
                         fileSystem.getFileContentAsString("/outputs/pack.json").await());
                 });
             });

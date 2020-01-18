@@ -24,44 +24,44 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/json-java/3/json-java.jar!/" />
+          <root url="jar://C:/qub/qub/json-java/5/json-java.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://C:/qub/qub/json-java/3/json-java.sources.jar!/" />
+          <root url="jar://C:/qub/qub/json-java/5/json-java.sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/projectjson-java/5/projectjson-java.jar!/" />
+          <root url="jar://C:/qub/qub/projectjson-java/7/projectjson-java.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://C:/qub/qub/projectjson-java/5/projectjson-java.sources.jar!/" />
+          <root url="jar://C:/qub/qub/projectjson-java/7/projectjson-java.sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/qub-java-build/61/qub-java-build.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-build/62/qub-java-build.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://C:/qub/qub/qub-java-build/61/qub-java-build.sources.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-build/62/qub-java-build.sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/qub/qub/qub-java-test/45/qub-java-test.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-test/46/qub-java-test.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://C:/qub/qub/qub-java-test/45/qub-java-test.sources.jar!/" />
+          <root url="jar://C:/qub/qub/qub-java-test/46/qub-java-test.sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

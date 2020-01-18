@@ -57,7 +57,14 @@ public class PackJSONFile
     @Override
     public String toString()
     {
-        return Strings.escapeAndQuote(this.relativePath) + ":" + Strings.escapeAndQuote(this.lastModified);
+        return this.toString(JSONFormat.consise);
+    }
+
+    public String toString(JSONFormat format)
+    {
+        PreCondition.assertNotNull(format, "format");
+
+        return Strings.escapeAndQuote(this.relativePath) + ":" + format.getAfterPropertySeparator() + Strings.escapeAndQuote(this.lastModified);
     }
 
     public JSONProperty toJsonProperty()
