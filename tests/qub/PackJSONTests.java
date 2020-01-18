@@ -183,59 +183,41 @@ public interface PackJSONTests
                 };
 
                 parseTest.run(
-                    JSON.object(json -> {}),
+                    JSONObject.create(),
                     new PackJSON());
                 parseTest.run(
-                    JSON.object(json ->
-                    {
-                        json.objectProperty("sourceFiles");
-                    }),
+                    JSONObject.create()
+                        .setObject("sourceFiles", JSONObject.create()),
                     new PackJSON()
                         .setSourceFiles(Iterable.create()));
                 parseTest.run(
-                    JSON.object(json ->
-                    {
-                        json.objectProperty("sourceFiles", sourceFiles ->
-                        {
-                            sourceFiles.stringProperty("a/b.java", "hello");
-                        });
-                    }),
+                    JSONObject.create()
+                        .setObject("sourceFiles", JSONObject.create()
+                            .setString("a/b.java", "hello")),
                     new PackJSON()
                         .setSourceFiles(Iterable.create()));
                 parseTest.run(
-                    JSON.object(json ->
-                    {
-                        json.objectProperty("sourceFiles", sourceFiles ->
-                        {
-                            sourceFiles.stringProperty("a/b.java", "0001-02-03T00:00Z");
-                        });
-                    }),
+                    JSONObject.create()
+                        .setObject("sourceFiles", JSONObject.create()
+                            .setString("a/b.java", "0001-02-03T00:00Z")),
                     new PackJSON()
                         .setSourceFiles(Iterable.create(
                             new PackJSONFile()
                                 .setRelativePath("a/b.java")
                                 .setLastModified(DateTime.create(1, 2, 3)))));
                 parseTest.run(
-                    JSON.object(json ->
-                    {
-                        json.objectProperty("sourceOutputFiles", sourceOutputFiles ->
-                        {
-                            sourceOutputFiles.stringProperty("a/b.java", "0001-02-03T00:00Z");
-                        });
-                    }),
+                    JSONObject.create()
+                        .setObject("sourceOutputFiles", JSONObject.create()
+                            .setString("a/b.java", "0001-02-03T00:00Z")),
                     new PackJSON()
                         .setSourceOutputFiles(Iterable.create(
                             new PackJSONFile()
                                 .setRelativePath("a/b.java")
                                 .setLastModified(DateTime.create(1, 2, 3)))));
                 parseTest.run(
-                    JSON.object(json ->
-                    {
-                        json.objectProperty("testOutputFiles", testOutputFiles ->
-                        {
-                            testOutputFiles.stringProperty("a/b.java", "0001-02-03T00:00Z");
-                        });
-                    }),
+                    JSONObject.create()
+                        .setObject("testOutputFiles", JSONObject.create()
+                            .setString("a/b.java", "0001-02-03T00:00Z")),
                     new PackJSON()
                         .setTestOutputFiles(Iterable.create(
                             new PackJSONFile()

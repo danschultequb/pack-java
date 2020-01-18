@@ -260,77 +260,60 @@ public interface PackJSONFileTests
 
             runner.testGroup("toJsonProperty()", () ->
             {
-                runner.test("with null", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.toJsonProperty(null),
-                        new PreConditionFailure("packJsonFiles cannot be null."));
-                });
-
                 runner.test("with null relative path", (Test test) ->
                 {
-                    final InMemoryCharacterStream text = new InMemoryCharacterStream();
-                    final JSONObjectBuilder json = new JSONObjectBuilder(text);
                     final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.toJsonProperty(json),
+                    test.assertThrows(file::toJsonProperty,
                         new PreConditionFailure("this.getRelativePath() cannot be null."));
-                    test.assertEqual("{", text.getText().await());
                 });
 
                 runner.test("with null last modified", (Test test) ->
                 {
-                    final InMemoryCharacterStream text = new InMemoryCharacterStream();
-                    final JSONObjectBuilder json = new JSONObjectBuilder(text);
                     final PackJSONFile file = new PackJSONFile()
                         .setRelativePath("a/b.java");
-                    file.toJsonProperty(json);
-                    test.assertEqual("{\"a/b.java\":null", text.getText().await());
+                    test.assertEqual(
+                        JSONProperty.create("a/b.java", JSONNull.segment),
+                        file.toJsonProperty());
                 });
 
                 runner.test("with all properties", (Test test) ->
                 {
-                    final InMemoryCharacterStream text = new InMemoryCharacterStream();
-                    final JSONObjectBuilder json = new JSONObjectBuilder(text);
                     final PackJSONFile file = new PackJSONFile()
                         .setRelativePath("a/b.java")
                         .setLastModified(DateTime.create(1, 2, 3));
-                    file.toJsonProperty(json);
-                    test.assertEqual("{\"a/b.java\":\"0001-02-03T00:00Z\"", text.getText().await());
+                    test.assertEqual(
+                        JSONProperty.create("a/b.java", "0001-02-03T00:00Z"),
+                        file.toJsonProperty());
                 });
             });
 
             runner.testGroup("parse(JSONProperty)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<JSONProperty,Throwable> parseErrorTest = (JSONProperty jsonProperty, Throwable expected) ->
                 {
-                    test.assertThrows(() -> PackJSONFile.parse(null),
-                        new PreConditionFailure("property cannot be null."));
-                });
+                    runner.test("with " + jsonProperty, (Test test) ->
+                    {
+                        test.assertThrows(() -> PackJSONFile.parse(jsonProperty).await(), expected);
+                    });
+                };
 
-                runner.test("with null:\"0001-02-03T00:00Z\"", (Test test) ->
-                {
-                    test.assertThrows(() -> PackJSONFile.parse(JSON.parseProperty("\"a\":null")).await(),
-                        new java.lang.ClassCastException("qub.JSONToken cannot be cast to qub.JSONQuotedString"));
-                });
+                parseErrorTest.run(null, new PreConditionFailure("property cannot be null."));
+                parseErrorTest.run(JSONProperty.create("a", JSONNull.segment), new WrongTypeException("Expected the property named \"a\" to be a JSONString, but was a JSONNull instead."));
+                parseErrorTest.run(JSONProperty.create("a", "b"), new java.time.format.DateTimeParseException("Text 'b' could not be parsed at index 0", "b", 0));
 
-                runner.test("with \"a\":null", (Test test) ->
+                final Action2<JSONProperty,PackJSONFile> parseTest = (JSONProperty jsonProperty, PackJSONFile expected) ->
                 {
-                    test.assertThrows(() -> PackJSONFile.parse(JSON.parseProperty("\"a\":null")).await(),
-                        new java.lang.ClassCastException("qub.JSONToken cannot be cast to qub.JSONQuotedString"));
-                });
+                    runner.test("with " + jsonProperty, (Test test) ->
+                    {
+                        test.assertEqual(expected, PackJSONFile.parse(jsonProperty).await());
+                    });
+                };
 
-                runner.test("with \"a\":\"b\"", (Test test) ->
-                {
-                    test.assertThrows(() -> PackJSONFile.parse(JSON.parseProperty("\"a\":\"b\"")).await(),
-                        new java.time.format.DateTimeParseException("Text 'b' could not be parsed at index 0", "b", 0));
-                });
-
-                runner.test("with \"a\":\"0001-02-03T00:00Z\"", (Test test) ->
-                {
-                    final PackJSONFile file = PackJSONFile.parse(JSON.parseProperty("\"a\":\"0001-02-03T00:00Z\"")).await();
-                    test.assertEqual(Path.parse("a"), file.getRelativePath());
-                    test.assertEqual(DateTime.create(1, 2, 3), file.getLastModified());
-                });
+                parseTest.run(
+                    JSONProperty.create("a", "0001-02-03T00:00Z"),
+                    new PackJSONFile()
+                        .setRelativePath("a")
+                        .setLastModified(DateTime.create(1, 2, 3)));
             });
         });
     }

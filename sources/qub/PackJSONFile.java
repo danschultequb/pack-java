@@ -60,12 +60,15 @@ public class PackJSONFile
         return Strings.escapeAndQuote(this.relativePath) + ":" + Strings.escapeAndQuote(this.lastModified);
     }
 
-    public void toJsonProperty(JSONObjectBuilder packJsonFiles)
+    public JSONProperty toJsonProperty()
     {
-        PreCondition.assertNotNull(packJsonFiles, "packJsonFiles");
         PreCondition.assertNotNull(this.getRelativePath(), "this.getRelativePath()");
 
-        packJsonFiles.stringOrNullProperty(this.relativePath.toString(), this.lastModified == null ? null : this.lastModified.toString());
+        return JSONProperty.create(
+            this.getRelativePath().toString(),
+            this.lastModified == null
+                ? JSONNull.segment
+                : JSONString.get(this.lastModified.toString()));
     }
 
     public static Result<PackJSONFile> parse(JSONProperty property)
@@ -75,7 +78,7 @@ public class PackJSONFile
         return Result.create(() ->
         {
             final String relativePath = property.getName();
-            final DateTime lastModified = DateTime.parse(((JSONQuotedString)property.getValueSegment()).toUnquotedString()).await();
+            final DateTime lastModified = DateTime.parse(property.getStringValue().await()).await();
             return new PackJSONFile()
                 .setRelativePath(relativePath)
                 .setLastModified(lastModified);

@@ -4,7 +4,7 @@ public interface QubPack
 {
     static void main(String[] args)
     {
-        Process.run(args, QubPack::main);
+        Process.run(args, (Action1<Process>)QubPack::main);
     }
 
     static void main(Process process)
@@ -116,7 +116,7 @@ public interface QubPack
                     .await();
                 if (!Strings.isNullOrEmpty(packJsonFileContents))
                 {
-                    packJson = PackJSON.parse(JSON.parseObject(packJsonFileContents)).await();
+                    packJson = PackJSON.parse(JSON.parseObject(packJsonFileContents).await()).await();
                 }
                 if (packJson == null)
                 {

@@ -74,32 +74,25 @@ public class PackJSON
 
     public JSONObject toJson()
     {
-        return JSON.object(this::toJson);
+        final JSONObject result = JSONObject.create();
+
+        PackJSON.setFilesProperty(result, PackJSON.sourceFilesPropertyName, this.sourceFiles);
+        PackJSON.setFilesProperty(result, PackJSON.sourceOutputFilesPropertyName, this.sourceOutputFiles);
+        PackJSON.setFilesProperty(result, PackJSON.testOutputFilesPropertyName, this.testOutputFiles);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
-    public void toJson(JSONObjectBuilder json)
+    private static void setFilesProperty(JSONObject jsonObject, String propertyName, Iterable<PackJSONFile> files)
     {
-        PreCondition.assertNotNull(json, "json");
-
-        PackJSON.writeFiles(this.sourceFiles, PackJSON.sourceFilesPropertyName, json);
-        PackJSON.writeFiles(this.sourceOutputFiles, PackJSON.sourceOutputFilesPropertyName, json);
-        PackJSON.writeFiles(this.testOutputFiles, PackJSON.testOutputFilesPropertyName, json);
-    }
-
-    private static void writeFiles(Iterable<PackJSONFile> files, String propertyName, JSONObjectBuilder json)
-    {
+        PreCondition.assertNotNull(jsonObject, "jsonObject");
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
-        PreCondition.assertNotNull(json, "json");
 
         if (!Iterable.isNullOrEmpty(files))
         {
-            json.objectProperty(propertyName, filesJson ->
-            {
-                for (final PackJSONFile file : files)
-                {
-                    file.toJsonProperty(filesJson);
-                }
-            });
+            jsonObject.setObject(propertyName, JSONObject.create(files.map(PackJSONFile::toJsonProperty)));
         }
     }
 
@@ -123,7 +116,7 @@ public class PackJSON
         PreCondition.assertNotNull(json, "json");
         PreCondition.assertNotNull(action, "action");
 
-        json.getObjectPropertyValue(propertyName)
+        json.getObject(propertyName)
             .then((JSONObject filesJson) ->
             {
                 final List<PackJSONFile> files = List.create();
