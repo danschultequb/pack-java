@@ -130,7 +130,7 @@ public interface QubPack
                 .toList();
 
             final File projectJsonFile = folderToPack.getFile("project.json").await();
-            final ProjectJSON projectJson = QubBuild.parseProjectJSONFile(projectJsonFile).await();
+            final ProjectJSON projectJson = ProjectJSON.parse(projectJsonFile).await();
             final String project = projectJson.getProject();
 
             final boolean shouldCreateSourcesJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getSourceFiles, PackJSON::setSourceFiles, sourceFolder, sourceJavaFiles);
