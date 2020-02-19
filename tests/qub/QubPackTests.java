@@ -15,26 +15,26 @@ public interface QubPackTests
                 });
             });
 
-            runner.testGroup("main(Process)", () ->
+            runner.testGroup("main(QubProcess)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     test.assertThrows(new PreConditionFailure("process cannot be null."),
-                        () -> QubPack.main((Process)null));
+                        () -> QubPack.main((QubProcess)null));
                 });
 
                 runner.test("with \"-?\"", (Test test) ->
                 {
                     final InMemoryByteStream output = new InMemoryByteStream();
                     final InMemoryByteStream error = new InMemoryByteStream();
-                    try (final Console console = Console.create("-?"))
+                    try (final QubProcess process = QubProcess.create("-?"))
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
-                        test.assertEqual(-1, console.getExitCode());
+                        test.assertEqual(-1, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -58,16 +58,16 @@ public interface QubPackTests
                     final InMemoryByteStream error = new InMemoryByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
-                        test.assertEqual(1, console.getExitCode());
+                        test.assertEqual(1, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -89,16 +89,16 @@ public interface QubPackTests
                     projectJSON.setJava(new ProjectJSONJava());
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
-                        test.assertEqual(1, console.getExitCode());
+                        test.assertEqual(1, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -122,16 +122,16 @@ public interface QubPackTests
                             .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -163,7 +163,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("A.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
                         test.assertEqual(
@@ -175,7 +175,7 @@ public interface QubPackTests
                                 "Creating compiled sources jar file..."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -205,16 +205,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/A$B.class", "there").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -246,7 +246,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("A$B.class", "A.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -258,7 +258,7 @@ public interface QubPackTests
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -290,16 +290,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/A$1.class", "again").await();
                     fileSystem.setFileContentAsString("/outputs/A$2.class", "you").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -331,7 +331,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("A$1.class", "A$2.class", "A.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -343,7 +343,7 @@ public interface QubPackTests
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -374,16 +374,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -416,7 +416,7 @@ public interface QubPackTests
                                 .addContentFilePath("A.class")
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -428,7 +428,7 @@ public interface QubPackTests
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -464,16 +464,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
-                    try (final Console console = Console.create("-verbose"))
+                    try (final QubProcess process = QubProcess.create("-verbose"))
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -511,7 +511,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -539,7 +539,7 @@ public interface QubPackTests
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
                         test.assertEqual("", error.asCharacterReadStream().getText().await());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -569,16 +569,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -616,9 +616,9 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -664,16 +664,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     fileSystem.setFileContentAsString("/outputs/ATests$Inner.class", "again").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -711,9 +711,9 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests$Inner.class", "ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual(
                         Iterable.create(
@@ -760,16 +760,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     fileSystem.setFileContentAsString("/outputs/ATests$1.class", "again").await();
-                    try (final Console console = Console.create())
+                    try (final QubProcess process = QubProcess.create())
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -807,7 +807,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests$1.class", "ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -819,7 +819,7 @@ public interface QubPackTests
                                 "Creating compiled tests jar file..."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
@@ -856,16 +856,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
-                    try (final Console console = Console.create("--packjson=false"))
+                    try (final QubProcess process = QubProcess.create("--packjson=false"))
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -903,7 +903,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -915,7 +915,7 @@ public interface QubPackTests
                                 "Creating compiled tests jar file..."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
@@ -951,16 +951,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
-                    try (final Console console = Console.create("--packjson=true"))
+                    try (final QubProcess process = QubProcess.create("--packjson=true"))
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -998,7 +998,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -1010,7 +1010,7 @@ public interface QubPackTests
                                 "Creating compiled tests jar file..."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(
@@ -1066,16 +1066,16 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/pack.json", new PackJSON()
                         .toString()).await();
 
-                    try (final Console console = Console.create("--packjson=true"))
+                    try (final QubProcess process = QubProcess.create("--packjson=true"))
                     {
-                        console.setOutputByteWriteStream(output);
-                        console.setErrorByteWriteStream(error);
-                        console.setFileSystem(fileSystem);
-                        console.setCurrentFolderPathString("/");
+                        process.setOutputByteWriteStream(output);
+                        process.setErrorByteWriteStream(error);
+                        process.setFileSystem(fileSystem);
+                        process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = console.getCurrentFolder().await();
-                        console.setJVMClasspath("/outputs");
-                        console.setProcessFactory(new FakeProcessFactory(console.getParallelAsyncRunner(), currentFolder)
+                        final Folder currentFolder = process.getCurrentFolder().await();
+                        process.setJVMClasspath("/outputs");
+                        process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
@@ -1113,7 +1113,7 @@ public interface QubPackTests
                                 .addContentFilePathStrings(Iterable.create("ATests.class"))
                                 .setFunctionAutomatically()));
 
-                        QubPack.main(console);
+                        QubPack.main(process);
 
                         test.assertEqual(
                             Iterable.create(
@@ -1125,7 +1125,7 @@ public interface QubPackTests
                                 "Creating compiled tests jar file..."),
                             Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
 
-                        test.assertEqual(0, console.getExitCode());
+                        test.assertEqual(0, process.getExitCode());
                     }
                     test.assertEqual("", error.asCharacterReadStream().getText().await());
                     test.assertEqual(

@@ -4,10 +4,10 @@ public interface QubPack
 {
     static void main(String[] args)
     {
-        Process.run(args, (Action1<Process>)QubPack::main);
+        QubProcess.run(args, (Action1<QubProcess>)QubPack::main);
     }
 
-    static void main(Process process)
+    static void main(QubProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 
@@ -21,7 +21,7 @@ public interface QubPack
         }
     }
 
-    static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, Process process)
+    static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, QubProcess process)
     {
         PreCondition.assertNotNull(parameters, "parameters");
         PreCondition.assertNotNull(process, "process");
@@ -45,7 +45,7 @@ public interface QubPack
      * @param process The process to get the QubPackParameters from.
      * @return The QubPackParameters.
      */
-    static QubPackParameters getParameters(Process process)
+    static QubPackParameters getParameters(QubProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 
