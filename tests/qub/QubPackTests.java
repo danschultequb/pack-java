@@ -25,12 +25,12 @@ public interface QubPackTests
 
                 runner.test("with \"-?\"", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     try (final QubProcess process = QubProcess.create("-?"))
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
 
                         QubPack.main(process);
 
@@ -48,20 +48,20 @@ public interface QubPackTests
                             "  --verbose(v): Whether or not to show verbose logs.",
                             "  --profiler: Whether or not this application should pause before it is run to allow a profiler to be attached.",
                             "  --help(?): Show the help message for this application."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()));
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                        Strings.getLines(output.getText().await()));
+                    test.assertEqual("", error.getText().await());
                 });
 
                 runner.test("with no project.json file", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -72,27 +72,27 @@ public interface QubPackTests
                     test.assertEqual(
                         Iterable.create(
                             "ERROR: The file at \"/project.json\" doesn't exist."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                        Strings.getLines(output.getText().await()).skipLast());
+                    test.assertEqual("", error.getText().await());
                 });
 
                 runner.test("with no source files", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON();
+                    final ProjectJSON projectJSON = ProjectJSON.create();
                     projectJSON.setProject("my-project");
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
-                    projectJSON.setJava(new ProjectJSONJava());
+                    projectJSON.setJava(ProjectJSONJava.create());
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -103,29 +103,29 @@ public interface QubPackTests
                     test.assertEqual(
                         Iterable.create(
                             "ERROR: No java source files found in /."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                        Strings.getLines(output.getText().await()).skipLast());
+                    test.assertEqual("", error.getText().await());
                 });
 
                 runner.test("with simple success", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json",
-                        new ProjectJSON()
+                        ProjectJSON.create()
                             .setProject("my-project")
                             .setPublisher("me")
                             .setVersion("34")
-                            .setJava(new ProjectJSONJava())
+                            .setJava(ProjectJSONJava.create())
                             .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -165,7 +165,7 @@ public interface QubPackTests
 
                         QubPack.main(process);
 
-                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                        test.assertEqual("", error.getText().await());
                         test.assertEqual(
                             Iterable.create(
                                 "Compiling 1 file...",
@@ -173,7 +173,7 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+                            Strings.getLines(output.getText().await()).skipLast());
 
                         test.assertEqual(0, process.getExitCode());
                     }
@@ -191,24 +191,24 @@ public interface QubPackTests
 
                 runner.test("with inner class in source file", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json",
-                        new ProjectJSON()
+                        ProjectJSON.create()
                             .setProject("my-project")
                             .setPublisher("me")
                             .setVersion("34")
-                            .setJava(new ProjectJSONJava())
+                            .setJava(ProjectJSONJava.create())
                             .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     fileSystem.setFileContentAsString("/outputs/A$B.class", "there").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -255,8 +255,8 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                            Strings.getLines(output.getText().await()).skipLast());
+                        test.assertEqual("", error.getText().await());
 
                         test.assertEqual(0, process.getExitCode());
                     }
@@ -275,16 +275,16 @@ public interface QubPackTests
 
                 runner.test("with anonymous classes in source file", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json",
-                        new ProjectJSON()
+                        ProjectJSON.create()
                             .setProject("my-project")
                             .setPublisher("me")
                             .setVersion("34")
-                            .setJava(new ProjectJSONJava())
+                            .setJava(ProjectJSONJava.create())
                             .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
@@ -292,8 +292,8 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/A$2.class", "you").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -340,8 +340,8 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                            Strings.getLines(output.getText().await()).skipLast());
+                        test.assertEqual("", error.getText().await());
 
                         test.assertEqual(0, process.getExitCode());
                     }
@@ -361,23 +361,23 @@ public interface QubPackTests
 
                 runner.test("with main class in project.json", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON()
+                    final ProjectJSON projectJSON = ProjectJSON.create()
                         .setProject("my-project")
                         .setPublisher("me")
                         .setVersion("34")
-                        .setJava(new ProjectJSONJava()
+                        .setJava(ProjectJSONJava.create()
                             .setMainClass("A"));
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -425,8 +425,8 @@ public interface QubPackTests
                                 "",
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                            Strings.getLines(output.getText().await()).skipLast());
+                        test.assertEqual("", error.getText().await());
 
                         test.assertEqual(0, process.getExitCode());
                     }
@@ -452,22 +452,22 @@ public interface QubPackTests
 
                 runner.test("with simple success and -verbose", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON()
+                    final ProjectJSON projectJSON = ProjectJSON.create()
                         .setProject("my-project")
                         .setPublisher("me")
                         .setVersion("34")
-                        .setJava(new ProjectJSONJava());
+                        .setJava(ProjectJSONJava.create());
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/outputs/A.class", "there").await();
                     try (final QubProcess process = QubProcess.create("-verbose"))
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -536,8 +536,8 @@ public interface QubPackTests
                                 "Creating compiled sources jar file...",
                                 "VERBOSE: Running /outputs: jar --create --file=my-project.jar A.class",
                                 "VERBOSE: Created /outputs/my-project.jar."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                        test.assertEqual("", error.asCharacterReadStream().getText().await());
+                            Strings.getLines(output.getText().await()).skipLast());
+                        test.assertEqual("", error.getText().await());
 
                         test.assertEqual(0, process.getExitCode());
                     }
@@ -555,15 +555,15 @@ public interface QubPackTests
 
                 runner.test("with test folder", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON();
+                    final ProjectJSON projectJSON = ProjectJSON.create();
                     projectJSON.setProject("my-project");
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
-                    projectJSON.setJava(new ProjectJSONJava());
+                    projectJSON.setJava(ProjectJSONJava.create());
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
@@ -571,8 +571,8 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -628,8 +628,8 @@ public interface QubPackTests
                             "Creating sources jar file...",
                             "Creating compiled sources jar file...",
                             "Creating compiled tests jar file..."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                        Strings.getLines(output.getText().await()).skipLast());
+                    test.assertEqual("", error.getText().await());
                     test.assertEqual(
                         Iterable.create(
                             "Content Files:",
@@ -649,15 +649,15 @@ public interface QubPackTests
 
                 runner.test("with test folder with inner class", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON();
+                    final ProjectJSON projectJSON = ProjectJSON.create();
                     projectJSON.setProject("my-project");
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
-                    projectJSON.setJava(new ProjectJSONJava());
+                    projectJSON.setJava(ProjectJSONJava.create());
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
@@ -666,8 +666,8 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/ATests$Inner.class", "again").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -723,8 +723,8 @@ public interface QubPackTests
                             "Creating sources jar file...",
                             "Creating compiled sources jar file...",
                             "Creating compiled tests jar file..."),
-                        Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                        Strings.getLines(output.getText().await()).skipLast());
+                    test.assertEqual("", error.getText().await());
                     test.assertEqual(
                         Iterable.create(
                             "Content Files:",
@@ -745,15 +745,15 @@ public interface QubPackTests
 
                 runner.test("with test folder with anonymous class", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    final ProjectJSON projectJSON = new ProjectJSON();
+                    final ProjectJSON projectJSON = ProjectJSON.create();
                     projectJSON.setProject("my-project");
                     projectJSON.setPublisher("me");
                     projectJSON.setVersion("34");
-                    projectJSON.setJava(new ProjectJSONJava());
+                    projectJSON.setJava(ProjectJSONJava.create());
                     fileSystem.setFileContentAsString("/project.json", projectJSON.toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
@@ -762,8 +762,8 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/ATests$1.class", "again").await();
                     try (final QubProcess process = QubProcess.create())
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -817,11 +817,11 @@ public interface QubPackTests
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file...",
                                 "Creating compiled tests jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+                            Strings.getLines(output.getText().await()).skipLast());
 
                         test.assertEqual(0, process.getExitCode());
                     }
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual("", error.getText().await());
                     test.assertEqual(
                         Iterable.create(
                             "Content Files:",
@@ -842,15 +842,15 @@ public interface QubPackTests
 
                 runner.test("with --packjson=false", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    fileSystem.setFileContentAsString("/project.json", new ProjectJSON()
+                    fileSystem.setFileContentAsString("/project.json", ProjectJSON.create()
                         .setProject("my-project")
                         .setPublisher("me")
                         .setVersion("34")
-                        .setJava(new ProjectJSONJava())
+                        .setJava(ProjectJSONJava.create())
                         .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
@@ -858,8 +858,8 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     try (final QubProcess process = QubProcess.create("--packjson=false"))
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -913,11 +913,11 @@ public interface QubPackTests
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file...",
                                 "Creating compiled tests jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+                            Strings.getLines(output.getText().await()).skipLast());
 
                         test.assertEqual(0, process.getExitCode());
                     }
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual("", error.getText().await());
                     test.assertEqual(
                         Iterable.create(
                             "Content Files:",
@@ -937,15 +937,15 @@ public interface QubPackTests
 
                 runner.test("with --packjson=true but no pack.json file", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    fileSystem.setFileContentAsString("/project.json", new ProjectJSON()
+                    fileSystem.setFileContentAsString("/project.json", ProjectJSON.create()
                         .setProject("my-project")
                         .setPublisher("me")
                         .setVersion("34")
-                        .setJava(new ProjectJSONJava())
+                        .setJava(ProjectJSONJava.create())
                         .toString());
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
@@ -953,8 +953,8 @@ public interface QubPackTests
                     fileSystem.setFileContentAsString("/outputs/ATests.class", "again").await();
                     try (final QubProcess process = QubProcess.create("--packjson=true"))
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -1008,11 +1008,11 @@ public interface QubPackTests
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file...",
                                 "Creating compiled tests jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+                            Strings.getLines(output.getText().await()).skipLast());
 
                         test.assertEqual(0, process.getExitCode());
                     }
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual("", error.getText().await());
                     test.assertEqual(
                         Iterable.create(
                             "Content Files:",
@@ -1048,15 +1048,15 @@ public interface QubPackTests
 
                 runner.test("with --packjson=true and empty pack.json file", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
-                    fileSystem.setFileContentAsString("/project.json", new ProjectJSON()
+                    fileSystem.setFileContentAsString("/project.json", ProjectJSON.create()
                         .setProject("my-project")
                         .setPublisher("me")
                         .setVersion("34")
-                        .setJava(new ProjectJSONJava())
+                        .setJava(ProjectJSONJava.create())
                         .toString()).await();
                     fileSystem.setFileContentAsString("/sources/A.java", "hello").await();
                     fileSystem.setFileContentAsString("/tests/ATests.java", "hi").await();
@@ -1068,8 +1068,8 @@ public interface QubPackTests
 
                     try (final QubProcess process = QubProcess.create("--packjson=true"))
                     {
-                        process.setOutputByteWriteStream(output);
-                        process.setErrorByteWriteStream(error);
+                        process.setOutputWriteStream(output);
+                        process.setErrorWriteStream(error);
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
@@ -1123,11 +1123,11 @@ public interface QubPackTests
                                 "Creating sources jar file...",
                                 "Creating compiled sources jar file...",
                                 "Creating compiled tests jar file..."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()).skipLast());
+                            Strings.getLines(output.getText().await()).skipLast());
 
                         test.assertEqual(0, process.getExitCode());
                     }
-                    test.assertEqual("", error.asCharacterReadStream().getText().await());
+                    test.assertEqual("", error.getText().await());
                     test.assertEqual(
                         Iterable.create(
                             "Content Files:",

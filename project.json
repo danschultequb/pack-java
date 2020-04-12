@@ -1,7 +1,7 @@
 {
   "publisher": "qub",
   "project": "pack-java",
-  "version": "2",
+  "version": "8",
   "java": {
     "mainClass": "qub.QubPack",
     "shortcutName": "qub-pack",
@@ -10,7 +10,7 @@
       {
         "publisher": "qub",
         "project": "test-java",
-        "version": "2"
+        "version": "9"
       }
     ]
   }

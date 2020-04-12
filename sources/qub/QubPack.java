@@ -67,8 +67,8 @@ public interface QubPack
             profilerParameter.await();
             profilerParameter.removeValue().await();
 
-            final ByteWriteStream output = process.getOutputByteWriteStream();
-            final ByteWriteStream error = process.getErrorByteWriteStream();
+            final CharacterToByteWriteStream output = process.getOutputWriteStream();
+            final CharacterToByteWriteStream error = process.getErrorWriteStream();
             final DefaultApplicationLauncher defaultApplicationLauncher = process.getDefaultApplicationLauncher();
             final Folder folderToPack = folderToPackParameter.getValue().await();
             final boolean packJson = packJsonParameter.getValue().await();
@@ -101,9 +101,8 @@ public interface QubPack
             final ProcessFactory processFactory = parameters.getProcessFactory();
             final Folder folderToPack = parameters.getFolderToPack();
             final boolean usePackJson = parameters.getPackJson();
-            final CharacterWriteStream output = parameters.getOutputCharacterWriteStream();
-            final ByteWriteStream outputByteWriteStream = parameters.getOutputByteWriteStream();
-            final ByteWriteStream errorByteWriteStream = parameters.getErrorByteWriteStream();
+            final CharacterToByteWriteStream output = parameters.getOutputWriteStream();
+            final CharacterToByteWriteStream error = parameters.getErrorWriteStream();
             final VerboseCharacterWriteStream verbose = parameters.getVerbose();
 
             final Folder outputFolder = folderToPack.getFolder("outputs").await();
@@ -143,7 +142,7 @@ public interface QubPack
             {
                 output.writeLine("Creating sources jar file...").await();
                 final File sourcesJarFile = sourceFolder.getFile(project + ".sources.jar").await();
-                final int createSourcesJarFileResult = QubPack.createJarFile(processFactory, sourceFolder, sourcesJarFile, sourceJavaFiles, verbose, outputByteWriteStream, errorByteWriteStream);
+                final int createSourcesJarFileResult = QubPack.createJarFile(processFactory, sourceFolder, sourcesJarFile, sourceJavaFiles, verbose, output, error);
                 if (createSourcesJarFileResult == 0)
                 {
                     final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
@@ -181,7 +180,7 @@ public interface QubPack
                     manifestFile.setContentsAsString(manifestFileContents).await();
                 }
                 final File compiledSourcesJarFile = outputFolder.getFile(project + ".jar").await();
-                final int createCompiledSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, manifestFile, compiledSourcesJarFile, compiledSourcesFile, verbose, outputByteWriteStream, errorByteWriteStream);
+                final int createCompiledSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, manifestFile, compiledSourcesJarFile, compiledSourcesFile, verbose, output, error);
                 if (createCompiledSourcesJarFileResult == 0)
                 {
                     verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
@@ -210,7 +209,7 @@ public interface QubPack
                 else
                 {
                     output.writeLine("Creating compiled tests jar file...").await();
-                    final int createTestSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, compiledTestsJarFile, testSourceClassFiles, verbose, outputByteWriteStream, errorByteWriteStream);
+                    final int createTestSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, compiledTestsJarFile, testSourceClassFiles, verbose, output, error);
                     if (createTestSourcesJarFileResult == 0)
                     {
                         verbose.writeLine("Created " + compiledTestsJarFile + ".").await();

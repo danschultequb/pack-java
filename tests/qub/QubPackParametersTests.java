@@ -14,8 +14,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(pattern), (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -38,8 +38,8 @@ public interface QubPackParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final Folder folderToPack = fileSystem.getFolder("/hello").await();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -57,8 +57,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + coverage, (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -84,8 +84,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + testJson, (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -109,8 +109,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(newJvmClassPath), (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -135,8 +135,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + profiler, (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -158,8 +158,8 @@ public interface QubPackParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final Folder folderToPack = fileSystem.getFolder("/hello").await();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -177,8 +177,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + warnings, (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -204,8 +204,8 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + buildJson, (Test test) ->
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        final InMemoryByteStream error = new InMemoryByteStream();
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folderToPack = fileSystem.getFolder("/hello").await();
                         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -227,8 +227,8 @@ public interface QubPackParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final Folder folderToPack = fileSystem.getFolder("/hello").await();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -246,8 +246,8 @@ public interface QubPackParametersTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final Folder folderToPack = fileSystem.getFolder("/hello").await();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -256,7 +256,7 @@ public interface QubPackParametersTests
                     final String jvmClassPath = "fake;jvm;class;path";
                     final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
-                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output.asCharacterReadStream());
+                    final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output);
                     test.<QubPackParameters>assertSame(parameters, parameters.setVerbose(verbose));
                     test.assertSame(verbose, parameters.getVerbose());
                 });
