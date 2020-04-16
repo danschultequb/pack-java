@@ -25,8 +25,8 @@ public interface QubPackTests
 
                 runner.test("with \"-?\"", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     try (final QubProcess process = QubProcess.create("-?"))
                     {
                         process.setOutputWriteStream(output);
@@ -54,8 +54,8 @@ public interface QubPackTests
 
                 runner.test("with no project.json file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     try (final QubProcess process = QubProcess.create())
@@ -78,8 +78,8 @@ public interface QubPackTests
 
                 runner.test("with no source files", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final ProjectJSON projectJSON = ProjectJSON.create();
@@ -109,8 +109,8 @@ public interface QubPackTests
 
                 runner.test("with simple success", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json",
@@ -191,8 +191,8 @@ public interface QubPackTests
 
                 runner.test("with inner class in source file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json",
@@ -275,8 +275,8 @@ public interface QubPackTests
 
                 runner.test("with anonymous classes in source file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json",
@@ -361,8 +361,8 @@ public interface QubPackTests
 
                 runner.test("with main class in project.json", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final ProjectJSON projectJSON = ProjectJSON.create()
@@ -452,8 +452,8 @@ public interface QubPackTests
 
                 runner.test("with simple success and -verbose", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final ProjectJSON projectJSON = ProjectJSON.create()
@@ -555,8 +555,8 @@ public interface QubPackTests
 
                 runner.test("with test folder", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final ProjectJSON projectJSON = ProjectJSON.create();
@@ -649,8 +649,8 @@ public interface QubPackTests
 
                 runner.test("with test folder with inner class", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final ProjectJSON projectJSON = ProjectJSON.create();
@@ -745,8 +745,8 @@ public interface QubPackTests
 
                 runner.test("with test folder with anonymous class", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     final ProjectJSON projectJSON = ProjectJSON.create();
@@ -842,8 +842,8 @@ public interface QubPackTests
 
                 runner.test("with --packjson=false", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json", ProjectJSON.create()
@@ -937,8 +937,8 @@ public interface QubPackTests
 
                 runner.test("with --packjson=true but no pack.json file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json", ProjectJSON.create()
@@ -1048,8 +1048,8 @@ public interface QubPackTests
 
                 runner.test("with --packjson=true and empty pack.json file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
-                    final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/").await();
                     fileSystem.setFileContentAsString("/project.json", ProjectJSON.create()
