@@ -130,24 +130,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A")))
                             .add(new FakeJarProcessRun()
@@ -213,24 +213,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A$B", "A")))
                             .add(new FakeJarProcessRun()
@@ -298,24 +298,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A$1", "A$2", "A")))
                             .add(new FakeJarProcessRun()
@@ -382,24 +382,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A")))
                             .add(new FakeJarProcessRun()
@@ -472,24 +472,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(true)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A")))
                             .add(new FakeJarProcessRun()
@@ -523,18 +523,18 @@ public interface QubPackTests
                                 "VERBOSE: Detecting java source files to compile...",
                                 "VERBOSE: Compiling all source files.",
                                 "Compiling 1 file...",
-                                "VERBOSE: Running /: javac -d outputs -Xlint:unchecked -Xlint:deprecation -classpath /outputs sources/A.java...",
+                                "VERBOSE: Running /: javac -d outputs -Xlint:unchecked -Xlint:deprecation -classpath /outputs/ sources/A.java...",
                                 "VERBOSE: Compilation finished.",
                                 "VERBOSE: Writing build.json file...",
                                 "VERBOSE: Done writing build.json file.",
                                 "Running tests...",
-                                "VERBOSE: Running /: java -classpath /outputs qub.ConsoleTestRunner --profiler=false --verbose=true --testjson=true --output-folder=/outputs --coverage=None A",
+                                "VERBOSE: Running /: java -classpath /outputs/ qub.ConsoleTestRunner --profiler=false --verbose=true --testjson=true --output-folder=/outputs/ --coverage=None A",
                                 "",
                                 "Creating sources jar file...",
-                                "VERBOSE: Running /sources: jar --create --file=my-project.sources.jar A.java",
+                                "VERBOSE: Running /sources/: jar --create --file=my-project.sources.jar A.java",
                                 "VERBOSE: Created /outputs/my-project.sources.jar.",
                                 "Creating compiled sources jar file...",
-                                "VERBOSE: Running /outputs: jar --create --file=my-project.jar A.class",
+                                "VERBOSE: Running /outputs/: jar --create --file=my-project.jar A.class",
                                 "VERBOSE: Created /outputs/my-project.jar."),
                             Strings.getLines(output.getText().await()).skipLast());
                         test.assertEqual("", error.getText().await());
@@ -577,24 +577,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A", "ATests")))
                             .add(new FakeJarProcessRun()
@@ -672,24 +672,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A", "ATests$Inner", "ATests")))
                             .add(new FakeJarProcessRun()
@@ -768,24 +768,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A", "ATests$1", "ATests")))
                             .add(new FakeJarProcessRun()
@@ -864,24 +864,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A", "ATests")))
                             .add(new FakeJarProcessRun()
@@ -959,24 +959,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A", "ATests")))
                             .add(new FakeJarProcessRun()
@@ -1074,24 +1074,24 @@ public interface QubPackTests
                         process.setCurrentFolderPathString("/");
 
                         final Folder currentFolder = process.getCurrentFolder().await();
-                        process.setJVMClasspath("/outputs");
+                        process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
                                 .setWorkingFolder(currentFolder)
                                 .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addXlintUnchecked()
                                 .addXlintDeprecation()
-                                .addClasspath("/outputs")
+                                .addClasspath(currentFolder.getFolder("outputs").await().toString())
                                 .addSourceFilePathStrings("sources/A.java", "tests/ATests.java")
                                 .setFunctionAutomatically())
                             .add(new FakeConsoleTestRunnerProcessRun()
                                 .setWorkingFolder(currentFolder)
-                                .addClasspath("/outputs")
+                                .addClasspath("/outputs/")
                                 .addConsoleTestRunnerFullClassName()
                                 .addProfiler(false)
                                 .addVerbose(false)
                                 .addTestJson(true)
-                                .addOutputFolder("/outputs")
+                                .addOutputFolder(currentFolder.getFolder("outputs").await())
                                 .addCoverage(Coverage.None)
                                 .addFullClassNamesToTest(Iterable.create("A", "ATests")))
                             .add(new FakeJarProcessRun()
