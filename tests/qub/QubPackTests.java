@@ -129,7 +129,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -212,7 +212,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -297,7 +297,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -381,7 +381,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -471,7 +471,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -576,7 +576,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -671,7 +671,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -767,7 +767,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -863,7 +863,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -958,7 +958,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
@@ -1073,7 +1073,7 @@ public interface QubPackTests
                         process.setFileSystem(fileSystem);
                         process.setCurrentFolderPathString("/");
 
-                        final Folder currentFolder = process.getCurrentFolder().await();
+                        final Folder currentFolder = process.getCurrentFolder();
                         process.setJVMClasspath(currentFolder.getFolder("outputs").await().toString());
                         process.setProcessFactory(new FakeProcessFactory(process.getParallelAsyncRunner(), currentFolder)
                             .add(new FakeJavacProcessRun()
