@@ -14,6 +14,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(pattern), (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -22,7 +23,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setPattern(pattern));
                         test.assertEqual(pattern, parameters.getPattern());
@@ -38,7 +39,8 @@ public interface QubPackParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final Folder folderToPack = fileSystem.getFolder("/hello").await();
@@ -46,7 +48,7 @@ public interface QubPackParametersTests
                     final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                     final String jvmClassPath = "fake;jvm;class;path";
-                    final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                    final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                     test.assertThrows(() -> parameters.setCoverage(null),
                         new PreConditionFailure("coverage cannot be null."));
@@ -57,6 +59,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + coverage, (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -65,7 +68,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setCoverage(coverage));
                         test.assertEqual(coverage, parameters.getCoverage());
@@ -84,6 +87,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + testJson, (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -92,7 +96,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setTestJson(testJson));
                         test.assertEqual(testJson, parameters.getTestJson());
@@ -109,6 +113,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(newJvmClassPath), (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -117,7 +122,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setJvmClassPath(newJvmClassPath));
                         test.assertEqual(newJvmClassPath, parameters.getJvmClassPath());
@@ -135,6 +140,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + profiler, (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -143,7 +149,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setProfiler(profiler));
                         test.assertEqual(profiler, parameters.getProfiler());
@@ -158,6 +164,7 @@ public interface QubPackParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
+                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -166,7 +173,7 @@ public interface QubPackParametersTests
                     final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                     final String jvmClassPath = "fake;jvm;class;path";
-                    final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                    final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                     test.assertThrows(() -> parameters.setWarnings(null),
                         new PreConditionFailure("warnings cannot be null."));
@@ -177,6 +184,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + warnings, (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -185,7 +193,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setWarnings(warnings));
                         test.assertEqual(warnings, parameters.getWarnings());
@@ -204,6 +212,7 @@ public interface QubPackParametersTests
                 {
                     runner.test("with " + buildJson, (Test test) ->
                     {
+                        final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -212,7 +221,7 @@ public interface QubPackParametersTests
                         final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                         final String jvmClassPath = "fake;jvm;class;path";
-                        final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                        final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                         test.<QubPackParameters>assertSame(parameters, parameters.setBuildJson(buildJson));
                         test.assertEqual(buildJson, parameters.getBuildJson());
@@ -227,6 +236,7 @@ public interface QubPackParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
+                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -235,7 +245,7 @@ public interface QubPackParametersTests
                     final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                     final String jvmClassPath = "fake;jvm;class;path";
-                    final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                    final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                     test.assertThrows(() -> parameters.setVerbose(null),
                         new PreConditionFailure("verbose cannot be null."));
@@ -246,6 +256,7 @@ public interface QubPackParametersTests
 
                 runner.test("with non-null", (Test test) ->
                 {
+                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
@@ -254,7 +265,7 @@ public interface QubPackParametersTests
                     final FakeProcessFactory processFactory = new FakeProcessFactory(test.getMainAsyncRunner(), folderToPack);
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
                     final String jvmClassPath = "fake;jvm;class;path";
-                    final QubPackParameters parameters = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+                    final QubPackParameters parameters = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
 
                     final VerboseCharacterWriteStream verbose = new VerboseCharacterWriteStream(true, output);
                     test.<QubPackParameters>assertSame(parameters, parameters.setVerbose(verbose));

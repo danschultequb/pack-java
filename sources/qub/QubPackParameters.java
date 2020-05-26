@@ -9,6 +9,7 @@ public class QubPackParameters extends QubTestParameters
 
     /**
      * Create a new QubPackParameters object.
+     * @param inputReadStream The ByteReadStream that input should be read from.
      * @param outputWriteStream The ByteWriteStream that output should be written to.
      * @param errorWriteStream The ByteWriteStream that errors should be written to.
      * @param folderToPack The folder that should have its tests run.
@@ -17,9 +18,9 @@ public class QubPackParameters extends QubTestParameters
      * @param defaultApplicationLauncher The object that will launch the default application for
      *                                   given files.
      */
-    public QubPackParameters(CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath)
+    public QubPackParameters(CharacterToByteReadStream inputReadStream, CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath)
     {
-        super(outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+        super(inputReadStream, outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
     }
 
     public QubPackParameters setPackJson(boolean packJson)

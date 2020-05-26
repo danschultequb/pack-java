@@ -67,6 +67,7 @@ public interface QubPack
             profilerParameter.await();
             profilerParameter.removeValue().await();
 
+            final CharacterToByteReadStream input = process.getInputReadStream();
             final CharacterToByteWriteStream output = process.getOutputWriteStream();
             final CharacterToByteWriteStream error = process.getErrorWriteStream();
             final DefaultApplicationLauncher defaultApplicationLauncher = process.getDefaultApplicationLauncher();
@@ -79,13 +80,15 @@ public interface QubPack
             final boolean buildJson = buildJsonParameter.removeValue().await();
             final Warnings warnings = warningsParameter.removeValue().await();
             final VerboseCharacterWriteStream verboseStream = verboseParameter.getVerboseCharacterWriteStream().await();
+            final boolean profiler = profilerParameter.getValue().await();
 
-            result = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
+            result = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
                 .setPackJson(packJson)
                 .setTestJson(testJson)
                 .setBuildJson(buildJson)
                 .setWarnings(warnings)
-                .setVerbose(verboseStream);
+                .setVerbose(verboseStream)
+                .setProfiler(profiler);
         }
 
         return result;
