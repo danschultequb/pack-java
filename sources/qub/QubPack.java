@@ -4,21 +4,7 @@ public interface QubPack
 {
     static void main(String[] args)
     {
-        QubProcess.run(args, (Action1<QubProcess>)QubPack::main);
-    }
-
-    static void main(QubProcess process)
-    {
-        PreCondition.assertNotNull(process, "process");
-
-        final QubPackParameters parameters = QubPack.getParameters(process);
-        if (parameters != null)
-        {
-            process.showDuration(() ->
-            {
-                process.setExitCode(QubPack.run(parameters));
-            });
-        }
+        QubProcess.run(args, QubPack::getParameters, QubPack::run);
     }
 
     static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, QubProcess process)
@@ -55,8 +41,8 @@ public interface QubPack
         final CommandLineParameter<Folder> folderToPackParameter = QubPack.addFolderToPack(parameters, process);
         final CommandLineParameterBoolean packJsonParameter = QubPack.addPackJsonParameter(parameters);
         final CommandLineParameterBoolean testJsonParameter = QubTest.addTestJsonParameter(parameters);
-        final CommandLineParameterBoolean buildJsonParameter = QubBuild.addBuildJsonParameter(parameters);
-        final CommandLineParameter<Warnings> warningsParameter = QubBuild.addWarningsParameter(parameters);
+        final CommandLineParameterBoolean buildJsonParameter = QubBuildCompile.addBuildJsonParameter(parameters);
+        final CommandLineParameter<Warnings> warningsParameter = QubBuildCompile.addWarningsParameter(parameters);
         final CommandLineParameterVerbose verboseParameter = parameters.addVerbose(process);
         final CommandLineParameterProfiler profilerParameter = parameters.addProfiler(process, QubPack.class);
         final CommandLineParameterHelp helpParameter = parameters.addHelp();
