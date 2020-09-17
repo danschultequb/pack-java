@@ -40,7 +40,7 @@ public interface QubPack
             .setApplicationDescription("Used to package source and compiled code in source code projects.");
         final CommandLineParameter<Folder> folderToPackParameter = QubPack.addFolderToPack(parameters, process);
         final CommandLineParameterBoolean packJsonParameter = QubPack.addPackJsonParameter(parameters);
-        final CommandLineParameterBoolean testJsonParameter = QubTest.addTestJsonParameter(parameters);
+        final CommandLineParameterBoolean testJsonParameter = QubTestRun.addTestJsonParameter(parameters);
         final CommandLineParameterBoolean buildJsonParameter = QubBuildCompile.addBuildJsonParameter(parameters);
         final CommandLineParameter<Warnings> warningsParameter = QubBuildCompile.addWarningsParameter(parameters);
         final CommandLineParameterVerbose verboseParameter = parameters.addVerbose(process);
@@ -84,7 +84,7 @@ public interface QubPack
     {
         PreCondition.assertNotNull(parameters, "parameters");
 
-        int result = QubTest.run(parameters);
+        int result = QubTestRun.run(parameters);
         if (result == 0)
         {
             final ProcessFactory processFactory = parameters.getProcessFactory();

@@ -3,7 +3,7 @@ package qub;
 /**
  * The parameters for the qub-pack application.
  */
-public class QubPackParameters extends QubTestParameters
+public class QubPackParameters extends QubTestRunParameters
 {
     private boolean packJson;
 
@@ -20,7 +20,16 @@ public class QubPackParameters extends QubTestParameters
      */
     public QubPackParameters(CharacterToByteReadStream inputReadStream, CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath)
     {
-        super(inputReadStream, outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
+        super(inputReadStream, outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, QubPackParameters.getQubTestDataFolder(folderToPack));
+    }
+
+    private static Folder getQubTestDataFolder(Folder folderToPack)
+    {
+        PreCondition.assertNotNull(folderToPack, "folderToPack");
+
+        final FileSystem fileSystem = folderToPack.getFileSystem();
+        return QubProjectVersionFolder.getFromType(fileSystem, QubTest.class).await()
+            .getProjectDataFolder().await();
     }
 
     public QubPackParameters setPackJson(boolean packJson)

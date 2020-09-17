@@ -77,7 +77,7 @@ public class FakeJarProcessRun extends FakeProcessRunDecorator<FakeJarProcessRun
         {
             final Folder workingFolder = this.fileSystem.getFolder(this.getWorkingFolderPath()).await();
             final File jarFile = workingFolder.getFile(this.jarFilePath).await();
-            try (final CharacterWriteStream jarFileStream = jarFile.getContentCharacterWriteStream().await())
+            try (final CharacterWriteStream jarFileStream = jarFile.getContentsCharacterWriteStream().await())
             {
                 if (this.manifestFilePath != null)
                 {
