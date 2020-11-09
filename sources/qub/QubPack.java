@@ -26,6 +26,15 @@ public interface QubPack
             .setDescription("Whether or not to read and write a pack.json file. Defaults to " + packJsonDefault + ".");
     }
 
+    static CommandLineParameterBoolean addParallelParameter(CommandLineParameters parameters)
+    {
+        PreCondition.assertNotNull(parameters, "parameters");
+
+        final boolean parallelDefault = QubPackParameters.getParallelPackDefault();
+        return parameters.addBoolean("parallelpack", parallelDefault)
+            .setDescription("Whether or not the jar files will be packaged in parallel. Defaults to " + parallelDefault + ".");
+    }
+
     /**
      * Get the QubPackParameters from the provided Process.
      * @param process The process to get the QubPackParameters from.
@@ -40,6 +49,7 @@ public interface QubPack
             .setApplicationDescription("Used to package source and compiled code in source code projects.");
         final CommandLineParameter<Folder> folderToPackParameter = QubPack.addFolderToPack(parameters, process);
         final CommandLineParameterBoolean packJsonParameter = QubPack.addPackJsonParameter(parameters);
+        final CommandLineParameterBoolean parallelParameter = QubPack.addParallelParameter(parameters);
         final CommandLineParameterBoolean testJsonParameter = QubTestRun.addTestJsonParameter(parameters);
         final CommandLineParameterBoolean buildJsonParameter = QubBuildCompile.addBuildJsonParameter(parameters);
         final CommandLineParameter<Warnings> warningsParameter = QubBuildCompile.addWarningsParameter(parameters);
@@ -59,6 +69,7 @@ public interface QubPack
             final DefaultApplicationLauncher defaultApplicationLauncher = process.getDefaultApplicationLauncher();
             final Folder folderToPack = folderToPackParameter.getValue().await();
             final boolean packJson = packJsonParameter.getValue().await();
+            final boolean parallel = parallelParameter.getValue().await();
             final EnvironmentVariables environmentVariables = process.getEnvironmentVariables();
             final ProcessFactory processFactory = process.getProcessFactory();
             final boolean testJson = testJsonParameter.removeValue().await();
@@ -70,6 +81,7 @@ public interface QubPack
 
             result = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
                 .setPackJson(packJson)
+                .setParallelPack(parallel)
                 .setTestJson(testJson)
                 .setBuildJson(buildJson)
                 .setWarnings(warnings)
@@ -84,12 +96,13 @@ public interface QubPack
     {
         PreCondition.assertNotNull(parameters, "parameters");
 
-        int result = QubTestRun.run(parameters);
-        if (result == 0)
+        final IntegerValue result = IntegerValue.create(QubTestRun.run(parameters));
+        if (result.equals(0))
         {
             final ProcessFactory processFactory = parameters.getProcessFactory();
             final Folder folderToPack = parameters.getFolderToPack();
             final boolean usePackJson = parameters.getPackJson();
+            final boolean parallel = parameters.getParallelPack();
             final CharacterToByteWriteStream output = parameters.getOutputWriteStream();
             final CharacterToByteWriteStream error = parameters.getErrorWriteStream();
             final VerboseCharacterWriteStream verbose = parameters.getVerbose();
@@ -112,6 +125,8 @@ public interface QubPack
                 }
             }
 
+            final List<Result<Void>> tasksToAwait = List.create();
+
             final Folder sourceFolder = folderToPack.getFolder("sources").await();
             final Iterable<File> sourceJavaFiles = sourceFolder.getFilesRecursively().await()
                 .where((File file) -> Comparer.equal(file.getFileExtension(), ".java"))
@@ -120,7 +135,6 @@ public interface QubPack
             final File projectJsonFile = folderToPack.getFile("project.json").await();
             final ProjectJSON projectJson = ProjectJSON.parse(projectJsonFile).await();
             final String project = projectJson.getProject();
-
             final boolean shouldCreateSourcesJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getSourceFiles, PackJSON::setSourceFiles, sourceFolder, sourceJavaFiles);
 
             if (!shouldCreateSourcesJarFile)
@@ -131,17 +145,29 @@ public interface QubPack
             {
                 output.writeLine("Creating sources jar file...").await();
                 final File sourcesJarFile = sourceFolder.getFile(project + ".sources.jar").await();
-                final int createSourcesJarFileResult = QubPack.createJarFile(processFactory, sourceFolder, sourcesJarFile, sourceJavaFiles, verbose, output, error);
-                if (createSourcesJarFileResult == 0)
+                final Result<Void> createSourcesJarFileTask = QubPack.createJarFile(processFactory, sourceFolder, sourcesJarFile, sourceJavaFiles, verbose, output, error)
+                    .then((Integer createSourcesJarFileResult) ->
+                    {
+                        if (createSourcesJarFileResult == 0)
+                        {
+                            final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
+                            sourcesJarFile.copyTo(sourcesJarFileInOutputsFolder).await();
+                            sourcesJarFile.delete().await();
+                            verbose.writeLine("Created " + sourcesJarFileInOutputsFolder + ".").await();
+                        }
+                        else
+                        {
+                            result.increment();
+                        }
+                    });
+
+                if (!parallel)
                 {
-                    final File sourcesJarFileInOutputsFolder = outputFolder.getFile(sourcesJarFile.getName()).await();
-                    sourcesJarFile.copyTo(sourcesJarFileInOutputsFolder).await();
-                    sourcesJarFile.delete().await();
-                    verbose.writeLine("Created " + sourcesJarFileInOutputsFolder + ".").await();
+                    createSourcesJarFileTask.await();
                 }
                 else
                 {
-                    ++result;
+                    tasksToAwait.add(createSourcesJarFileTask);
                 }
             }
 
@@ -169,14 +195,26 @@ public interface QubPack
                     manifestFile.setContentsAsString(manifestFileContents).await();
                 }
                 final File compiledSourcesJarFile = outputFolder.getFile(project + ".jar").await();
-                final int createCompiledSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, manifestFile, compiledSourcesJarFile, compiledSourcesFile, verbose, output, error);
-                if (createCompiledSourcesJarFileResult == 0)
+                final Result<Void> createCompiledSourcesJarFileTask = QubPack.createJarFile(processFactory, outputFolder, manifestFile, compiledSourcesJarFile, compiledSourcesFile, verbose, output, error)
+                    .then((Integer createCompiledSourcesJarFileResult) ->
+                    {
+                        if (createCompiledSourcesJarFileResult == 0)
+                        {
+                            verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
+                        }
+                        else
+                        {
+                            result.increment();
+                        }
+                    });
+
+                if (!parallel)
                 {
-                    verbose.writeLine("Created " + compiledSourcesJarFile + ".").await();
+                    createCompiledSourcesJarFileTask.await();
                 }
                 else
                 {
-                    ++result;
+                    tasksToAwait.add(createCompiledSourcesJarFileTask);
                 }
             }
 
@@ -198,17 +236,31 @@ public interface QubPack
                 else
                 {
                     output.writeLine("Creating compiled tests jar file...").await();
-                    final int createTestSourcesJarFileResult = QubPack.createJarFile(processFactory, outputFolder, compiledTestsJarFile, testSourceClassFiles, verbose, output, error);
-                    if (createTestSourcesJarFileResult == 0)
+                    final Result<Void> createTestSourcesJarFileTask = QubPack.createJarFile(processFactory, outputFolder, compiledTestsJarFile, testSourceClassFiles, verbose, output, error)
+                        .then((Integer createTestSourcesJarFileResult) ->
+                        {
+                            if (createTestSourcesJarFileResult == 0)
+                            {
+                                verbose.writeLine("Created " + compiledTestsJarFile + ".").await();
+                            }
+                            else
+                            {
+                                result.increment();
+                            }
+                        });
+
+                    if (!parallel)
                     {
-                        verbose.writeLine("Created " + compiledTestsJarFile + ".").await();
+                        createTestSourcesJarFileTask.await();
                     }
                     else
                     {
-                        ++result;
+                        tasksToAwait.add(createTestSourcesJarFileTask);
                     }
                 }
             }
+
+            Result.await(tasksToAwait);
 
             if (usePackJson && (shouldCreateSourcesJarFile || shouldCreateCompiledSourcesJarFile || shouldCreateCompiledTestsJarFile))
             {
@@ -216,7 +268,7 @@ public interface QubPack
             }
         }
 
-        return result;
+        return result.getAsInt();
     }
 
     static boolean shouldCreateJarFile(PackJSON packJson, Function1<PackJSON,Iterable<PackJSONFile>> getPackJSONFiles, Action2<PackJSON,Iterable<PackJSONFile>> setPackJSONFiles, Folder folder, Iterable<File> files)
@@ -265,12 +317,12 @@ public interface QubPack
         return result;
     }
 
-    static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    static Result<Integer> createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
     {
         return QubPack.createJarFile(processFactory, baseFolder, null, jarFile, files, verbose, outputByteWriteStream, errorByteWriteStream);
     }
 
-    static int createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    static Result<Integer> createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
     {
         PreCondition.assertNotNull(processFactory, "processFactory");
         PreCondition.assertNotNull(baseFolder, "baseFolder");
@@ -298,7 +350,8 @@ public interface QubPack
             verbose.writeLine("Running " + jar.getCommand()).await();
         }
 
-        return jar.run().await();
+        final ChildProcess childProcess = jar.start().await();
+        return LazyResult.create(childProcess::await);
     }
 
     static boolean isSourceClassFile(Folder outputFolder, File outputClassFile, Folder sourceFolder, Iterable<File> sourceJavaFiles)

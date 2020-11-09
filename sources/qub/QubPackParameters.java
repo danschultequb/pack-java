@@ -6,6 +6,7 @@ package qub;
 public class QubPackParameters extends QubTestRunParameters
 {
     private boolean packJson;
+    private boolean parallelPack;
 
     /**
      * Create a new QubPackParameters object.
@@ -41,6 +42,26 @@ public class QubPackParameters extends QubTestRunParameters
     public boolean getPackJson()
     {
         return this.packJson;
+    }
+
+    /**
+     * Set whether or not the jar files will be packaged in parallel.
+     * @param parallelPack Whether or not the jar files will be packaged in parallel.
+     * @return This object for method chaining.
+     */
+    public QubPackParameters setParallelPack(boolean parallelPack)
+    {
+        this.parallelPack = parallelPack;
+        return this;
+    }
+
+    /**
+     * Get whether or not the jar files will be packaged in parallel.
+     * @return Whether or not the jar files will be packaged in parallel.
+     */
+    public boolean getParallelPack()
+    {
+        return this.parallelPack;
     }
 
     /**
@@ -101,6 +122,11 @@ public class QubPackParameters extends QubTestRunParameters
     }
 
     public static boolean getPackJsonDefault()
+    {
+        return true;
+    }
+
+    public static boolean getParallelPackDefault()
     {
         return true;
     }
