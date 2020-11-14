@@ -2,54 +2,86 @@ package qub;
 
 public class PackJSON
 {
+    private static final String projectPropertyName = "project";
     private static final String sourceFilesPropertyName = "sourceFiles";
     private static final String sourceOutputFilesPropertyName = "sourceOutputFiles";
     private static final String testOutputFilesPropertyName = "testOutputFiles";
 
-    private Iterable<PackJSONFile> sourceFiles;
-    private Iterable<PackJSONFile> sourceOutputFiles;
-    private Iterable<PackJSONFile> testOutputFiles;
+    private final JSONObject json;
+
+    private PackJSON(JSONObject json)
+    {
+        PreCondition.assertNotNull(json, "json");
+
+        this.json = json;
+    }
+
+    public static PackJSON create()
+    {
+        return PackJSON.create(JSONObject.create());
+    }
+
+    public static PackJSON create(JSONObject json)
+    {
+        return new PackJSON(json);
+    }
+
+    public PackJSON setProject(String project)
+    {
+        PreCondition.assertNotNullAndNotEmpty(project, "project");
+
+        this.json.setString(PackJSON.projectPropertyName, project);
+
+        return this;
+    }
+
+    public String getProject()
+    {
+        return this.json.getString(PackJSON.projectPropertyName)
+            .catchError()
+            .await();
+    }
 
     public PackJSON setSourceFiles(Iterable<PackJSONFile> sourceFiles)
     {
         PreCondition.assertNotNull(sourceFiles, "sourceFiles");
 
-        this.sourceFiles = sourceFiles;
+        PackJSON.setPackJsonFiles(this.json, PackJSON.sourceFilesPropertyName, sourceFiles);
 
         return this;
     }
 
     public Iterable<PackJSONFile> getSourceFiles()
     {
-        return this.sourceFiles;
+        return PackJSON.parsePackJSONFiles(this.json, PackJSON.sourceFilesPropertyName);
     }
 
     public PackJSON setSourceOutputFiles(Iterable<PackJSONFile> sourceOutputFiles)
     {
         PreCondition.assertNotNull(sourceOutputFiles, "sourceOutputFiles");
 
-        this.sourceOutputFiles = sourceOutputFiles;
+        PackJSON.setPackJsonFiles(this.json, PackJSON.sourceOutputFilesPropertyName, sourceOutputFiles);
 
         return this;
     }
 
     public Iterable<PackJSONFile> getSourceOutputFiles()
     {
-        return this.sourceOutputFiles;
+        return PackJSON.parsePackJSONFiles(this.json, PackJSON.sourceOutputFilesPropertyName);
     }
 
     public PackJSON setTestOutputFiles(Iterable<PackJSONFile> testOutputFiles)
     {
         PreCondition.assertNotNull(testOutputFiles, "testOutputFiles");
 
-        this.testOutputFiles = testOutputFiles;
+        PackJSON.setPackJsonFiles(this.json, PackJSON.testOutputFilesPropertyName, testOutputFiles);
 
         return this;
     }
 
     public Iterable<PackJSONFile> getTestOutputFiles()
     {
-        return this.testOutputFiles;
+        return PackJSON.parsePackJSONFiles(this.json, PackJSON.testOutputFilesPropertyName);
     }
 
     @Override
@@ -61,9 +93,9 @@ public class PackJSON
     public boolean equals(PackJSON rhs)
     {
         return rhs != null &&
-            Comparer.equal(this.sourceFiles, rhs.sourceFiles) &&
-            Comparer.equal(this.sourceOutputFiles, rhs.sourceOutputFiles) &&
-            Comparer.equal(this.testOutputFiles, rhs.testOutputFiles);
+            Comparer.equal(this.getSourceFiles(), rhs.getSourceFiles()) &&
+            Comparer.equal(this.getSourceOutputFiles(), rhs.getSourceOutputFiles()) &&
+            Comparer.equal(this.getTestOutputFiles(), rhs.getTestOutputFiles());
     }
 
     @Override
@@ -81,62 +113,35 @@ public class PackJSON
 
     public JSONObject toJson()
     {
-        final JSONObject result = JSONObject.create();
-
-        PackJSON.setFilesProperty(result, PackJSON.sourceFilesPropertyName, this.sourceFiles);
-        PackJSON.setFilesProperty(result, PackJSON.sourceOutputFilesPropertyName, this.sourceOutputFiles);
-        PackJSON.setFilesProperty(result, PackJSON.testOutputFilesPropertyName, this.testOutputFiles);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return this.json;
     }
 
-    private static void setFilesProperty(JSONObject jsonObject, String propertyName, Iterable<PackJSONFile> files)
-    {
-        PreCondition.assertNotNull(jsonObject, "jsonObject");
-        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
-
-        if (!Iterable.isNullOrEmpty(files))
-        {
-            jsonObject.setObject(propertyName, JSONObject.create(files.map(PackJSONFile::toJsonProperty)));
-        }
-    }
-
-    public static Result<PackJSON> parse(JSONObject json)
+    private static void setPackJsonFiles(JSONObject json, String propertyName, Iterable<PackJSONFile> packJSONFiles)
     {
         PreCondition.assertNotNull(json, "json");
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+        PreCondition.assertNotNull(packJSONFiles, "packJSONFiles");
 
-        return Result.create(() ->
-        {
-            final PackJSON result = new PackJSON();
-            PackJSON.parseFiles(PackJSON.sourceFilesPropertyName, json, result::setSourceFiles);
-            PackJSON.parseFiles(PackJSON.sourceOutputFilesPropertyName, json, result::setSourceOutputFiles);
-            PackJSON.parseFiles(PackJSON.testOutputFilesPropertyName, json, result::setTestOutputFiles);
-            return result;
-        });
+        json.setObject(propertyName, JSONObject.create(packJSONFiles.map(PackJSONFile::toJsonProperty)));
     }
 
-    private static void parseFiles(String propertyName, JSONObject json, Action1<Iterable<PackJSONFile>> action)
+    private static Iterable<PackJSONFile> parsePackJSONFiles(JSONObject json, String propertyName)
     {
-        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
         PreCondition.assertNotNull(json, "json");
-        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
 
-        json.getObject(propertyName)
-            .then((JSONObject filesJson) ->
+        final List<PackJSONFile> result = List.create();
+        final JSONObject sourceFiles = json.getObject(propertyName).catchError().await();
+        if (sourceFiles != null)
+        {
+            for (final JSONProperty jsonProperty : sourceFiles.getProperties())
             {
-                final List<PackJSONFile> files = List.create();
-                for (final JSONProperty fileProperty : filesJson.getProperties())
-                {
-                    PackJSONFile.parse(fileProperty)
-                        .then(files::add)
-                        .catchError()
-                        .await();
-                }
-                action.run(files);
-            })
-            .catchError()
-            .await();
+                PackJSONFile.parse(jsonProperty)
+                    .then(result::add)
+                    .catchError()
+                    .await();
+            }
+        }
+        return result;
     }
 }

@@ -1281,19 +1281,13 @@ public interface QubPackTests
                             "ATests.class"),
                         Strings.getLines(aTestsJarFile.getContentsAsString().await()));
                     test.assertEqual(
-                        new PackJSON()
+                        PackJSON.create()
                             .setSourceFiles(Iterable.create(
-                                new PackJSONFile()
-                                    .setRelativePath(aJavaFile.relativeTo(sourcesFolder))
-                                    .setLastModified(aJavaFile.getLastModified().await())))
+                                PackJSONFile.create(aJavaFile.relativeTo(sourcesFolder), aJavaFile.getLastModified().await())))
                             .setSourceOutputFiles(Iterable.create(
-                                new PackJSONFile()
-                                    .setRelativePath(aClassFile.relativeTo(outputsFolder))
-                                    .setLastModified(aClassFile.getLastModified().await())))
+                                PackJSONFile.create(aClassFile.relativeTo(outputsFolder), aClassFile.getLastModified().await())))
                             .setTestOutputFiles(Iterable.create(
-                                new PackJSONFile()
-                                    .setRelativePath(aTestsClassFile.relativeTo(outputsFolder))
-                                    .setLastModified(aTestsClassFile.getLastModified().await())))
+                                PackJSONFile.create(aTestsClassFile.relativeTo(outputsFolder), aTestsClassFile.getLastModified().await())))
                             .toString(JSONFormat.pretty),
                         packJsonFile.getContentsAsString().await());
                 });
@@ -1413,19 +1407,13 @@ public interface QubPackTests
                             "ATests.class"),
                         Strings.getLines(aTestsJarFile.getContentsAsString().await()));
                     test.assertEqual(
-                        new PackJSON()
+                        PackJSON.create()
                             .setSourceFiles(Iterable.create(
-                                new PackJSONFile()
-                                    .setRelativePath(aJavaFile.relativeTo(sourcesFolder))
-                                    .setLastModified(aJavaFile.getLastModified().await())))
+                                PackJSONFile.create(aJavaFile.relativeTo(sourcesFolder), aJavaFile.getLastModified().await())))
                             .setSourceOutputFiles(Iterable.create(
-                                new PackJSONFile()
-                                    .setRelativePath(aClassFile.relativeTo(outputsFolder))
-                                    .setLastModified(aClassFile.getLastModified().await())))
+                                PackJSONFile.create(aClassFile.relativeTo(outputsFolder), aClassFile.getLastModified().await())))
                             .setTestOutputFiles(Iterable.create(
-                                new PackJSONFile()
-                                    .setRelativePath(aTestsClassFile.relativeTo(outputsFolder))
-                                    .setLastModified(aTestsClassFile.getLastModified().await())))
+                                PackJSONFile.create(aTestsClassFile.relativeTo(outputsFolder), aTestsClassFile.getLastModified().await())))
                             .toString(JSONFormat.pretty),
                         packJsonFile.getContentsAsString().await());
                 });

@@ -2,43 +2,54 @@ package qub;
 
 public class PackJSONFile
 {
-    private Path relativePath;
-    private DateTime lastModified;
+    private final JSONProperty json;
 
-    public PackJSONFile setRelativePath(String relativePath)
+    private PackJSONFile(JSONProperty json)
     {
-        PreCondition.assertNotNullAndNotEmpty(relativePath, "relativePath");
+        PreCondition.assertNotNull(json, "json");
 
-        return this.setRelativePath(Path.parse(relativePath));
+        this.json = json;
     }
 
-    public PackJSONFile setRelativePath(Path relativePath)
+    public static PackJSONFile create(String relativePath, DateTime lastModified)
+    {
+        PreCondition.assertNotNullAndNotEmpty(relativePath, "relativePath");
+        PreCondition.assertNotNull(lastModified, "lastModified");
+
+        return PackJSONFile.create(Path.parse(relativePath), lastModified);
+    }
+
+    public static PackJSONFile create(Path relativePath, DateTime lastModified)
     {
         PreCondition.assertNotNull(relativePath, "relativePath");
         PreCondition.assertFalse(relativePath.isRooted(), "relativePath.isRooted()");
+        PreCondition.assertNotNull(lastModified, "lastModified");
 
-        this.relativePath = relativePath;
+        return new PackJSONFile(JSONProperty.create(relativePath.toString(), lastModified.toString()));
+    }
 
-        return this;
+    public static Result<PackJSONFile> parse(JSONProperty json)
+    {
+        PreCondition.assertNotNull(json, "json");
+
+        return Result.create(() ->
+        {
+            // If the DateTime successfully parses the property value, then it's a valid
+            // PackJSONFile JSONProperty.
+            DateTime.parse(json.getStringValue().await()).await();
+
+            return new PackJSONFile(json);
+        });
     }
 
     public Path getRelativePath()
     {
-        return this.relativePath;
-    }
-
-    public PackJSONFile setLastModified(DateTime lastModified)
-    {
-        PreCondition.assertNotNull(lastModified, "lastModified");
-
-        this.lastModified = lastModified;
-
-        return this;
+        return Path.parse(this.json.getName());
     }
 
     public DateTime getLastModified()
     {
-        return this.lastModified;
+        return DateTime.parse(this.json.getStringValue().await()).await();
     }
 
     @Override
@@ -50,8 +61,8 @@ public class PackJSONFile
     public boolean equals(PackJSONFile rhs)
     {
         return rhs != null &&
-            Comparer.equal(this.relativePath, rhs.relativePath) &&
-            Comparer.equal(this.lastModified, rhs.lastModified);
+            Comparer.equal(this.getRelativePath(), rhs.getRelativePath()) &&
+            Comparer.equal(this.getLastModified(), rhs.getLastModified());
     }
 
     @Override
@@ -64,31 +75,13 @@ public class PackJSONFile
     {
         PreCondition.assertNotNull(format, "format");
 
-        return Strings.escapeAndQuote(this.relativePath) + ":" + format.getAfterPropertySeparator() + Strings.escapeAndQuote(this.lastModified);
+        return this.json.toString(format);
     }
 
     public JSONProperty toJsonProperty()
     {
         PreCondition.assertNotNull(this.getRelativePath(), "this.getRelativePath()");
 
-        return JSONProperty.create(
-            this.getRelativePath().toString(),
-            this.lastModified == null
-                ? JSONNull.segment
-                : JSONString.get(this.lastModified.toString()));
-    }
-
-    public static Result<PackJSONFile> parse(JSONProperty property)
-    {
-        PreCondition.assertNotNull(property, "property");
-
-        return Result.create(() ->
-        {
-            final String relativePath = property.getName();
-            final DateTime lastModified = DateTime.parse(property.getStringValue().await()).await();
-            return new PackJSONFile()
-                .setRelativePath(relativePath)
-                .setLastModified(lastModified);
-        });
+        return this.json;
     }
 }

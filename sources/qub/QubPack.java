@@ -117,11 +117,11 @@ public interface QubPack
                     .await();
                 if (!Strings.isNullOrEmpty(packJsonFileContents))
                 {
-                    packJson = PackJSON.parse(JSON.parseObject(packJsonFileContents).await()).await();
+                    packJson = PackJSON.create(JSON.parseObject(packJsonFileContents).await());
                 }
                 if (packJson == null)
                 {
-                    packJson = new PackJSON();
+                    packJson = PackJSON.create();
                 }
             }
 
@@ -135,7 +135,7 @@ public interface QubPack
             final File projectJsonFile = folderToPack.getFile("project.json").await();
             final ProjectJSON projectJson = ProjectJSON.parse(projectJsonFile).await();
             final String project = projectJson.getProject();
-            final boolean shouldCreateSourcesJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getSourceFiles, PackJSON::setSourceFiles, sourceFolder, sourceJavaFiles);
+            final boolean shouldCreateSourcesJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getSourceFiles, PackJSON::setSourceFiles, project, sourceFolder, sourceJavaFiles);
 
             if (!shouldCreateSourcesJarFile)
             {
@@ -176,7 +176,7 @@ public interface QubPack
                 .toList();
 
             final Iterable<File> compiledSourcesFile = QubPack.getSourceClassFiles(outputFolder, outputClassFiles, sourceFolder, sourceJavaFiles);
-            final boolean shouldCreateCompiledSourcesJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getSourceOutputFiles, PackJSON::setSourceOutputFiles, outputFolder, compiledSourcesFile);
+            final boolean shouldCreateCompiledSourcesJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getSourceOutputFiles, PackJSON::setSourceOutputFiles, project, outputFolder, compiledSourcesFile);
             if (!shouldCreateCompiledSourcesJarFile)
             {
                 output.writeLine("Skipping compiled sources jar file.").await();
@@ -228,7 +228,7 @@ public interface QubPack
                     .toList();
                 final Iterable<File> testSourceClassFiles = QubPack.getSourceClassFiles(outputFolder, outputClassFiles, testFolder, testJavaFiles);
 
-                shouldCreateCompiledTestsJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getTestOutputFiles, PackJSON::setTestOutputFiles, outputFolder, testSourceClassFiles);
+                shouldCreateCompiledTestsJarFile = QubPack.shouldCreateJarFile(packJson, PackJSON::getTestOutputFiles, PackJSON::setTestOutputFiles, project, outputFolder, testSourceClassFiles);
                 if (!shouldCreateCompiledTestsJarFile)
                 {
                     output.writeLine("Skipping compiled tests jar file.").await();
@@ -271,8 +271,14 @@ public interface QubPack
         return result.getAsInt();
     }
 
-    static boolean shouldCreateJarFile(PackJSON packJson, Function1<PackJSON,Iterable<PackJSONFile>> getPackJSONFiles, Action2<PackJSON,Iterable<PackJSONFile>> setPackJSONFiles, Folder folder, Iterable<File> files)
+    static boolean shouldCreateJarFile(PackJSON packJson, Function1<PackJSON,Iterable<PackJSONFile>> getPackJSONFiles, Action2<PackJSON,Iterable<PackJSONFile>> setPackJSONFiles, String project, Folder folder, Iterable<File> files)
     {
+        PreCondition.assertNotNull(getPackJSONFiles, "getPackJSONFiles");
+        PreCondition.assertNotNull(setPackJSONFiles, "setPackJSONFiles");
+        PreCondition.assertNotNullAndNotEmpty(project, "project");
+        PreCondition.assertNotNull(folder, "folder");
+        PreCondition.assertNotNull(files, "files");
+
         boolean result;
         if (packJson == null)
         {
@@ -280,7 +286,7 @@ public interface QubPack
         }
         else
         {
-            result = false;
+            result = Comparer.equal(packJson.getProject(), project);
             Iterable<PackJSONFile> packJsonFiles = getPackJSONFiles.run(packJson);
             if (packJsonFiles == null)
             {
@@ -295,9 +301,7 @@ public interface QubPack
                 final DateTime sourceJavaFileLastModified = file.getLastModified().await();
                 if (packJsonFile == null || !Comparer.equal(packJsonFile.getLastModified(), sourceJavaFileLastModified))
                 {
-                    newPackJsonSourceFiles.add(new PackJSONFile()
-                        .setRelativePath(fileRelativePath)
-                        .setLastModified(sourceJavaFileLastModified));
+                    newPackJsonSourceFiles.add(PackJSONFile.create(fileRelativePath, sourceJavaFileLastModified));
                     result = true;
                 }
                 else

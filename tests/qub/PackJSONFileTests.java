@@ -8,90 +8,71 @@ public interface PackJSONFileTests
 
         runner.testGroup(PackJSONFile.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.testGroup("create(String,DateTime)", () ->
             {
-                final PackJSONFile file = new PackJSONFile();
-                test.assertNull(file.getRelativePath());
-                test.assertNull(file.getLastModified());
+                final Action3<String,DateTime,Throwable> createErrorTest = (String relativePath, DateTime lastModified, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(relativePath), lastModified), (Test test) ->
+                    {
+                        test.assertThrows(() -> PackJSONFile.create(relativePath, lastModified), expected);
+                    });
+                };
+
+                createErrorTest.run(null, DateTime.epoch, new PreConditionFailure("relativePath cannot be null."));
+                createErrorTest.run("", DateTime.epoch, new PreConditionFailure("relativePath cannot be empty."));
+                createErrorTest.run("/rooted/path.txt", DateTime.epoch, new PreConditionFailure("relativePath.isRooted() cannot be true."));
+                createErrorTest.run("relative/path.txt", null, new PreConditionFailure("lastModified cannot be null."));
+
+                final Action2<String,DateTime> createTest = (String relativePath, DateTime lastModified) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(relativePath), lastModified), (Test test) ->
+                    {
+                        final PackJSONFile packJsonFile = PackJSONFile.create(relativePath, lastModified);
+                        test.assertNotNull(packJsonFile);
+                        test.assertEqual(Path.parse(relativePath), packJsonFile.getRelativePath());
+                        test.assertEqual(lastModified, packJsonFile.getLastModified());
+
+                        final JSONProperty json = packJsonFile.toJsonProperty();
+                        test.assertNotNull(json, "json");
+                        test.assertEqual(relativePath, json.getName());
+                        test.assertEqual(JSONString.get(lastModified.toString()), json.getValue());
+                    });
+                };
+
+                createTest.run("relative/path.txt", DateTime.create(1, 2, 3));
             });
 
-            runner.testGroup("setRelativePath(String)", () ->
+            runner.testGroup("create(Path,DateTime)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<Path,DateTime,Throwable> createErrorTest = (Path relativePath, DateTime lastModified, Throwable expected) ->
                 {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.setRelativePath((String)null),
-                        new PreConditionFailure("relativePath cannot be null."));
-                    test.assertNull(file.getRelativePath());
-                });
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(relativePath), lastModified), (Test test) ->
+                    {
+                        test.assertThrows(() -> PackJSONFile.create(relativePath, lastModified), expected);
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.setRelativePath(""),
-                        new PreConditionFailure("relativePath cannot be empty."));
-                    test.assertNull(file.getRelativePath());
-                });
+                createErrorTest.run(null, DateTime.epoch, new PreConditionFailure("relativePath cannot be null."));
+                createErrorTest.run(Path.parse("/rooted/path.txt"), DateTime.epoch, new PreConditionFailure("relativePath.isRooted() cannot be true."));
+                createErrorTest.run(Path.parse("relative/path.txt"), null, new PreConditionFailure("lastModified cannot be null."));
 
-                runner.test("with rooted path", (Test test) ->
+                final Action2<Path,DateTime> createTest = (Path relativePath, DateTime lastModified) ->
                 {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.setRelativePath("/hello/there.class"),
-                        new PreConditionFailure("relativePath.isRooted() cannot be true."));
-                    test.assertNull(file.getRelativePath());
-                });
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(relativePath), lastModified), (Test test) ->
+                    {
+                        final PackJSONFile packJsonFile = PackJSONFile.create(relativePath, lastModified);
+                        test.assertNotNull(packJsonFile);
+                        test.assertEqual(relativePath, packJsonFile.getRelativePath());
+                        test.assertEqual(lastModified, packJsonFile.getLastModified());
 
-                runner.test("with relative path", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertSame(file, file.setRelativePath("hello/there.class"));
-                    test.assertEqual(Path.parse("hello/there.class"), file.getRelativePath());
-                });
-            });
+                        final JSONProperty json = packJsonFile.toJsonProperty();
+                        test.assertNotNull(json, "json");
+                        test.assertEqual(relativePath.toString(), json.getName());
+                        test.assertEqual(JSONString.get(lastModified.toString()), json.getValue());
+                    });
+                };
 
-            runner.testGroup("setRelativePath(Path)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.setRelativePath((Path)null),
-                        new PreConditionFailure("relativePath cannot be null."));
-                    test.assertNull(file.getRelativePath());
-                });
-
-                runner.test("with rooted path", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.setRelativePath(Path.parse("/hello/there.class")),
-                        new PreConditionFailure("relativePath.isRooted() cannot be true."));
-                    test.assertNull(file.getRelativePath());
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertSame(file, file.setRelativePath(Path.parse("hello/there.class")));
-                    test.assertEqual(Path.parse("hello/there.class"), file.getRelativePath());
-                });
-            });
-
-            runner.testGroup("setLastModified(DateTime)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(() -> file.setLastModified(null),
-                        new PreConditionFailure("lastModified cannot be null."));
-                    test.assertNull(file.getLastModified());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    final DateTime now = test.getClock().getCurrentDateTime();
-                    test.assertSame(file, file.setLastModified(now));
-                    test.assertEqual(now, file.getLastModified());
-                });
+                createTest.run(Path.parse("relative/path.txt"), DateTime.create(1, 2, 3));
             });
 
             runner.testGroup("equals(Object)", () ->
@@ -105,62 +86,44 @@ public interface PackJSONFileTests
                 };
 
                 equalsTest.run(
-                    new PackJSONFile(),
+                    PackJSONFile.create("test", DateTime.epoch),
                     null,
                     false);
                 equalsTest.run(
-                    new PackJSONFile(),
+                    PackJSONFile.create("test", DateTime.epoch),
                     "apples",
                     false);
                 equalsTest.run(
-                    new PackJSONFile(),
-                    new PackJSONFile(),
+                    PackJSONFile.create("test", DateTime.epoch),
+                    PackJSONFile.create("test", DateTime.epoch),
                     true);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello.class"),
-                    new PackJSONFile(),
+                    PackJSONFile.create("hello.class", DateTime.epoch),
+                    PackJSONFile.create("test", DateTime.epoch),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello.class"),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello.class", DateTime.epoch),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     true);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello\\there.class"),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello\\there.class", DateTime.epoch),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     true);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 4)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 4)),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
                     true);
             });
 
@@ -175,58 +138,40 @@ public interface PackJSONFileTests
                 };
 
                 equalsTest.run(
-                    new PackJSONFile(),
+                    PackJSONFile.create("test", DateTime.epoch),
                     null,
                     false);
                 equalsTest.run(
-                    new PackJSONFile(),
-                    new PackJSONFile(),
+                    PackJSONFile.create("test", DateTime.epoch),
+                    PackJSONFile.create("test", DateTime.epoch),
                     true);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello.class"),
-                    new PackJSONFile(),
+                    PackJSONFile.create("hello.class", DateTime.epoch),
+                    PackJSONFile.create("test", DateTime.epoch),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello.class"),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello.class", DateTime.epoch),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     true);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello\\there.class"),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello\\there.class", DateTime.epoch),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     true);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class"),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.epoch),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 4)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 4)),
                     false);
                 equalsTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    new PackJSONFile()
-                        .setRelativePath("hello/there.class")
-                        .setLastModified(DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("hello/there.class", DateTime.create(1, 2, 3)),
                     true);
             });
 
@@ -241,50 +186,25 @@ public interface PackJSONFileTests
                 };
 
                 toStringTest.run(
-                    new PackJSONFile(),
-                    "null:null");
+                    PackJSONFile.create("test", DateTime.epoch),
+                    "\"test\":\"1970-01-01T00:00Z\"");
                 toStringTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("a/b/c.java"),
-                    "\"a/b/c.java\":null");
+                    PackJSONFile.create("a/b/c.java", DateTime.epoch),
+                    "\"a/b/c.java\":\"1970-01-01T00:00Z\"");
                 toStringTest.run(
-                    new PackJSONFile()
-                        .setLastModified(DateTime.create(1, 2, 3)),
-                    "null:\"0001-02-03T00:00Z\"");
+                    PackJSONFile.create("test", DateTime.create(1, 2, 3)),
+                    "\"test\":\"0001-02-03T00:00Z\"");
                 toStringTest.run(
-                    new PackJSONFile()
-                        .setRelativePath("grapes.java")
-                        .setLastModified(DateTime.create(1, 2, 3)),
+                    PackJSONFile.create("grapes.java", DateTime.create(1, 2, 3)),
                     "\"grapes.java\":\"0001-02-03T00:00Z\"");
             });
 
-            runner.testGroup("toJsonProperty()", () ->
+            runner.test("toJsonProperty()", (Test test) ->
             {
-                runner.test("with null relative path", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile();
-                    test.assertThrows(file::toJsonProperty,
-                        new PreConditionFailure("this.getRelativePath() cannot be null."));
-                });
-
-                runner.test("with null last modified", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile()
-                        .setRelativePath("a/b.java");
-                    test.assertEqual(
-                        JSONProperty.create("a/b.java", JSONNull.segment),
-                        file.toJsonProperty());
-                });
-
-                runner.test("with all properties", (Test test) ->
-                {
-                    final PackJSONFile file = new PackJSONFile()
-                        .setRelativePath("a/b.java")
-                        .setLastModified(DateTime.create(1, 2, 3));
-                    test.assertEqual(
-                        JSONProperty.create("a/b.java", "0001-02-03T00:00Z"),
-                        file.toJsonProperty());
-                });
+                final PackJSONFile file = PackJSONFile.create("a/b.java", DateTime.create(1, 2, 3));
+                test.assertEqual(
+                    JSONProperty.create("a/b.java", "0001-02-03T00:00Z"),
+                    file.toJsonProperty());
             });
 
             runner.testGroup("parse(JSONProperty)", () ->
@@ -297,7 +217,7 @@ public interface PackJSONFileTests
                     });
                 };
 
-                parseErrorTest.run(null, new PreConditionFailure("property cannot be null."));
+                parseErrorTest.run(null, new PreConditionFailure("json cannot be null."));
                 parseErrorTest.run(JSONProperty.create("a", JSONNull.segment), new WrongTypeException("Expected the property named \"a\" to be a JSONString, but was a JSONNull instead."));
                 parseErrorTest.run(JSONProperty.create("a", "b"), new java.time.format.DateTimeParseException("Text 'b' could not be parsed at index 0", "b", 0));
 
@@ -311,9 +231,7 @@ public interface PackJSONFileTests
 
                 parseTest.run(
                     JSONProperty.create("a", "0001-02-03T00:00Z"),
-                    new PackJSONFile()
-                        .setRelativePath("a")
-                        .setLastModified(DateTime.create(1, 2, 3)));
+                    PackJSONFile.create("a", DateTime.create(1, 2, 3)));
             });
         });
     }
