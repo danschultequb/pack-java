@@ -264,6 +264,8 @@ public interface QubPack
 
             if (usePackJson && (shouldCreateSourcesJarFile || shouldCreateCompiledSourcesJarFile || shouldCreateCompiledTestsJarFile))
             {
+                packJson.setProject(project);
+
                 packJsonFile.setContentsAsString(packJson.toString(JSONFormat.pretty)).await();
             }
         }
@@ -286,7 +288,7 @@ public interface QubPack
         }
         else
         {
-            result = Comparer.equal(packJson.getProject(), project);
+            result = !Comparer.equal(packJson.getProject(), project);
             Iterable<PackJSONFile> packJsonFiles = getPackJSONFiles.run(packJson);
             if (packJsonFiles == null)
             {

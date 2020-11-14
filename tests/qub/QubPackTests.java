@@ -1288,6 +1288,7 @@ public interface QubPackTests
                                 PackJSONFile.create(aClassFile.relativeTo(outputsFolder), aClassFile.getLastModified().await())))
                             .setTestOutputFiles(Iterable.create(
                                 PackJSONFile.create(aTestsClassFile.relativeTo(outputsFolder), aTestsClassFile.getLastModified().await())))
+                            .setProject("a")
                             .toString(JSONFormat.pretty),
                         packJsonFile.getContentsAsString().await());
                 });
@@ -1414,6 +1415,7 @@ public interface QubPackTests
                                 PackJSONFile.create(aClassFile.relativeTo(outputsFolder), aClassFile.getLastModified().await())))
                             .setTestOutputFiles(Iterable.create(
                                 PackJSONFile.create(aTestsClassFile.relativeTo(outputsFolder), aTestsClassFile.getLastModified().await())))
+                            .setProject("a")
                             .toString(JSONFormat.pretty),
                         packJsonFile.getContentsAsString().await());
                 });
