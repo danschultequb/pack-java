@@ -66,14 +66,14 @@ public interface QubPackTests
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         process.setErrorWriteStream(error);
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("C:/").await();
                         process.setFileSystem(fileSystem);
 
                         final Folder currentFolder = fileSystem.getFolder("C:/current/folder/").await();
                         process.setCurrentFolder(currentFolder);
 
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                         process.setDefaultApplicationLauncher(defaultApplicationLauncher);
 
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
@@ -130,11 +130,11 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final Folder currentFolder = fileSystem.getFolder("C:/current/folder/").await();
                     final FakeProcessFactory processFactory = new FakeProcessFactory(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
@@ -156,7 +156,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final Folder currentFolder = fileSystem.getFolder("C:/current/folder/").await();
                     final File projectJsonFile = currentFolder.getFile("project.json").await();
@@ -166,7 +166,7 @@ public interface QubPackTests
                             .toString())
                         .await();
                     final FakeProcessFactory processFactory = new FakeProcessFactory(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
@@ -188,7 +188,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -248,7 +248,7 @@ public interface QubPackTests
                             .addJarFile(aJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -283,7 +283,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -343,7 +343,7 @@ public interface QubPackTests
                             .addJarFile(aJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
@@ -397,7 +397,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -461,7 +461,7 @@ public interface QubPackTests
                                 abClassFile.relativeTo(outputsFolder),
                                 aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -497,7 +497,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -564,7 +564,7 @@ public interface QubPackTests
                                 a2ClassFile.relativeTo(outputsFolder),
                                 aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -601,7 +601,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -664,7 +664,7 @@ public interface QubPackTests
                             .addManifestFile(manifestFile)
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -707,7 +707,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -779,7 +779,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -820,7 +820,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -896,7 +896,7 @@ public interface QubPackTests
                                 aTestsBClassFile.relativeTo(outputsFolder),
                                 aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -938,7 +938,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -1014,7 +1014,7 @@ public interface QubPackTests
                                 aTests1ClassFile.relativeTo(outputsFolder),
                                 aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath);
@@ -1056,7 +1056,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -1129,7 +1129,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
@@ -1172,7 +1172,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -1245,7 +1245,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
@@ -1298,7 +1298,7 @@ public interface QubPackTests
                     final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("C:/").await();
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("C:/qub/").await());
                     final File qubTestLogFile = qubFolder.getProjectDataFolder("qub", "test-java").await()
@@ -1372,7 +1372,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
                     final EnvironmentVariables environmentVariables = new EnvironmentVariables();
                     environmentVariables.set("QUB_HOME", qubFolder.toString());
                     final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
