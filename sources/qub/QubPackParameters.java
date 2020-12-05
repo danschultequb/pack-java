@@ -19,17 +19,28 @@ public class QubPackParameters extends QubTestRunParameters
      * @param defaultApplicationLauncher The object that will launch the default application for
      *                                   given files.
      */
-    public QubPackParameters(CharacterToByteReadStream inputReadStream, CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath)
+    public QubPackParameters(CharacterToByteReadStream inputReadStream, CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath, TypeLoader typeLoader)
     {
-        super(inputReadStream, outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, QubPackParameters.getQubTestDataFolder(folderToPack));
+        super(inputReadStream, outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, QubPackParameters.getQubTestDataFolder(folderToPack, typeLoader), typeLoader);
     }
 
-    private static Folder getQubTestDataFolder(Folder folderToPack)
+    private static Folder getQubTestDataFolder(Folder folderToPack, TypeLoader typeLoader)
     {
         PreCondition.assertNotNull(folderToPack, "folderToPack");
+        PreCondition.assertNotNull(typeLoader, "typeLoader");
 
         final FileSystem fileSystem = folderToPack.getFileSystem();
-        return QubProjectVersionFolder.getFromType(fileSystem, QubTest.class).await()
+        final Path path = typeLoader.getTypeContainerPath(QubTest.class).await();
+        Folder projectVersionFolder;
+        if (fileSystem.fileExists(path).await())
+        {
+            projectVersionFolder = fileSystem.getFile(path).await().getParentFolder().await();
+        }
+        else
+        {
+            projectVersionFolder = fileSystem.getFolder(path).await();
+        }
+        return QubProjectVersionFolder.get(projectVersionFolder)
             .getProjectDataFolder().await();
     }
 
@@ -116,7 +127,7 @@ public class QubPackParameters extends QubTestRunParameters
     }
 
     @Override
-    public QubPackParameters setVerbose(VerboseCharacterWriteStream verbose)
+    public QubPackParameters setVerbose(VerboseCharacterToByteWriteStream verbose)
     {
         return (QubPackParameters)super.setVerbose(verbose);
     }

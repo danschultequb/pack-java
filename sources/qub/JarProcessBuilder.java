@@ -18,7 +18,7 @@ public class JarProcessBuilder extends ProcessBuilderDecorator<JarProcessBuilder
      * @param process The Process to get the JarProcessBuilder from.
      * @return The JarProcessBuilder.
      */
-    public static Result<JarProcessBuilder> get(Process process)
+    public static Result<JarProcessBuilder> get(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 

@@ -4,10 +4,10 @@ public interface QubPack
 {
     static void main(String[] args)
     {
-        QubProcess.run(args, QubPack::getParameters, QubPack::run);
+        DesktopProcess.run(args, QubPack::getParameters, QubPack::run);
     }
 
-    static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, QubProcess process)
+    static CommandLineParameter<Folder> addFolderToPack(CommandLineParameters parameters, DesktopProcess process)
     {
         PreCondition.assertNotNull(parameters, "parameters");
         PreCondition.assertNotNull(process, "process");
@@ -40,7 +40,7 @@ public interface QubPack
      * @param process The process to get the QubPackParameters from.
      * @return The QubPackParameters.
      */
-    static QubPackParameters getParameters(QubProcess process)
+    static QubPackParameters getParameters(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 
@@ -76,10 +76,11 @@ public interface QubPack
             final String jvmClassPath = process.getJVMClasspath().await();
             final boolean buildJson = buildJsonParameter.removeValue().await();
             final Warnings warnings = warningsParameter.removeValue().await();
-            final VerboseCharacterWriteStream verboseStream = verboseParameter.getVerboseCharacterWriteStream().await();
+            final VerboseCharacterToByteWriteStream verboseStream = verboseParameter.getVerboseCharacterToByteWriteStream().await();
             final boolean profiler = profilerParameter.getValue().await();
+            final TypeLoader typeLoader = process.getTypeLoader();
 
-            result = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath)
+            result = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
                 .setPackJson(packJson)
                 .setParallelPack(parallel)
                 .setTestJson(testJson)
@@ -105,7 +106,7 @@ public interface QubPack
             final boolean parallel = parameters.getParallelPack();
             final CharacterToByteWriteStream output = parameters.getOutputWriteStream();
             final CharacterToByteWriteStream error = parameters.getErrorWriteStream();
-            final VerboseCharacterWriteStream verbose = parameters.getVerbose();
+            final VerboseCharacterToByteWriteStream verbose = parameters.getVerbose();
 
             final Folder outputFolder = folderToPack.getFolder("outputs").await();
             final File packJsonFile = outputFolder.getFile("pack.json").await();
@@ -323,12 +324,12 @@ public interface QubPack
         return result;
     }
 
-    static Result<Integer> createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    static Result<Integer> createJarFile(ProcessFactory processFactory, Folder baseFolder, File jarFile, Iterable<File> files, VerboseCharacterToByteWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
     {
         return QubPack.createJarFile(processFactory, baseFolder, null, jarFile, files, verbose, outputByteWriteStream, errorByteWriteStream);
     }
 
-    static Result<Integer> createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
+    static Result<Integer> createJarFile(ProcessFactory processFactory, Folder baseFolder, File manifestFile, File jarFile, Iterable<File> files, VerboseCharacterToByteWriteStream verbose, ByteWriteStream outputByteWriteStream, ByteWriteStream errorByteWriteStream)
     {
         PreCondition.assertNotNull(processFactory, "processFactory");
         PreCondition.assertNotNull(baseFolder, "baseFolder");
