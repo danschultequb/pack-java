@@ -63,7 +63,6 @@ public interface QubPack
             profilerParameter.await();
             profilerParameter.removeValue().await();
 
-            final CharacterToByteReadStream input = process.getInputReadStream();
             final CharacterToByteWriteStream output = process.getOutputWriteStream();
             final CharacterToByteWriteStream error = process.getErrorWriteStream();
             final DefaultApplicationLauncher defaultApplicationLauncher = process.getDefaultApplicationLauncher();
@@ -80,7 +79,7 @@ public interface QubPack
             final boolean profiler = profilerParameter.getValue().await();
             final TypeLoader typeLoader = process.getTypeLoader();
 
-            result = new QubPackParameters(input, output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
+            result = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
                 .setPackJson(packJson)
                 .setParallelPack(parallel)
                 .setTestJson(testJson)

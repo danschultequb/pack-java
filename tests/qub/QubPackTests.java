@@ -25,56 +25,41 @@ public interface QubPackTests
 
                 runner.test("with -?", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
-                    final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create("-?"))
                     {
-                        process.setOutputWriteStream(output);
-                        process.setErrorWriteStream(error);
-
                         final QubPackParameters parameters = QubPack.getParameters(process);
                         test.assertNull(parameters);
 
                         test.assertEqual(-1, process.getExitCode());
+                        test.assertEqual(
+                            Iterable.create(
+                                "Usage: qub-pack [[--folder=]<folder-to-pack>] [--packjson] [--parallelpack] [--testjson] [--buildjson] [--warnings=<show|error|hide>] [--verbose] [--profiler] [--help]",
+                                "  Used to package source and compiled code in source code projects.",
+                                "  --folder:       The folder to pack. Defaults to the current folder.",
+                                "  --packjson:     Whether or not to read and write a pack.json file. Defaults to true.",
+                                "  --parallelpack: Whether or not the jar files will be packaged in parallel. Defaults to true.",
+                                "  --testjson:     Whether or not to write the test results to a test.json file.",
+                                "  --buildjson:    Whether or not to read and write a build.json file. Defaults to true.",
+                                "  --warnings:     How to handle build warnings. Can be either \"show\", \"error\", or \"hide\". Defaults to \"show\".",
+                                "  --verbose(v):   Whether or not to show verbose logs.",
+                                "  --profiler:     Whether or not this application should pause before it is run to allow a profiler to be attached.",
+                                "  --help(?):      Show the help message for this application."),
+                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                        test.assertEqual(
+                            Iterable.create(),
+                            Strings.getLines(process.getErrorWriteStream().getText().await()));
                     }
-                    test.assertEqual(
-                        Iterable.create(
-                            "Usage: qub-pack [[--folder=]<folder-to-pack>] [--packjson] [--parallelpack] [--testjson] [--buildjson] [--warnings=<show|error|hide>] [--verbose] [--profiler] [--help]",
-                            "  Used to package source and compiled code in source code projects.",
-                            "  --folder:       The folder to pack. Defaults to the current folder.",
-                            "  --packjson:     Whether or not to read and write a pack.json file. Defaults to true.",
-                            "  --parallelpack: Whether or not the jar files will be packaged in parallel. Defaults to true.",
-                            "  --testjson:     Whether or not to write the test results to a test.json file.",
-                            "  --buildjson:    Whether or not to read and write a build.json file. Defaults to true.",
-                            "  --warnings:     How to handle build warnings. Can be either \"show\", \"error\", or \"hide\". Defaults to \"show\".",
-                            "  --verbose(v):   Whether or not to show verbose logs.",
-                            "  --profiler:     Whether or not this application should pause before it is run to allow a profiler to be attached.",
-                            "  --help(?):      Show the help message for this application."),
-                        Strings.getLines(output.getText().await()));
-                    test.assertEqual(
-                        Iterable.create(),
-                        Strings.getLines(error.getText().await()));
                 });
 
                 runner.test("with no command line arguments", (Test test) ->
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
-                        process.setOutputWriteStream(output);
+                        process.setDefaultCurrentFolder("/current/folder/");
+                        
+                        final InMemoryFileSystem fileSystem = process.getFileSystem();
 
-                        final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                        process.setErrorWriteStream(error);
-
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
-                        fileSystem.createRoot("/").await();
-                        process.setFileSystem(fileSystem, "/");
-
-                        final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
-                        process.setCurrentFolder(currentFolder);
-
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                        process.setDefaultApplicationLauncher(defaultApplicationLauncher);
+                        final Folder currentFolder = process.getCurrentFolder();
 
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final QubProjectFolder qubBuildProjectFolder = qubFolder.getProjectFolder("qub", "build-java").await();
@@ -86,30 +71,22 @@ public interface QubPackTests
                         qubTestCompiledSourcesFile.create().await();
                         final Folder qubTestDataFolder = qubTestProjectFolder.getProjectDataFolder().await();
 
-                        final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                        environmentVariables.set("QUB_HOME", qubFolder.toString());
-                        process.setEnvironmentVariables(environmentVariables);
-
-                        final String jvmClassPath = "/fake-jvm-classpath";
-                        process.setJVMClasspath(jvmClassPath);
-
-                        process.setTypeLoader(FakeTypeLoader.create()
+                        process.getTypeLoader()
                             .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
-                            .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile));
+                            .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
 
                         final QubPackParameters parameters = QubPack.getParameters(process);
                         test.assertNotNull(parameters);
                         test.assertTrue(parameters.getBuildJson());
                         test.assertEqual(Coverage.None, parameters.getCoverage());
-                        test.assertSame(defaultApplicationLauncher, parameters.getDefaultApplicationLauncher());
-                        test.assertSame(environmentVariables, parameters.getEnvironmentVariables());
-                        test.assertSame(error, parameters.getErrorWriteStream());
+                        test.assertSame(process.getDefaultApplicationLauncher(), parameters.getDefaultApplicationLauncher());
+                        test.assertSame(process.getEnvironmentVariables(), parameters.getEnvironmentVariables());
+                        test.assertSame(process.getErrorWriteStream(), parameters.getErrorWriteStream());
                         test.assertEqual(currentFolder, parameters.getFolderToBuild());
                         test.assertEqual(currentFolder, parameters.getFolderToPack());
                         test.assertEqual(currentFolder, parameters.getFolderToTest());
-                        test.assertSame(process.getInputReadStream(), parameters.getInputReadStream());
-                        test.assertEqual(jvmClassPath, parameters.getJvmClassPath());
-                        test.assertSame(output, parameters.getOutputWriteStream());
+                        test.assertEqual(process.getJVMClasspath().await(), parameters.getJvmClassPath());
+                        test.assertSame(process.getOutputWriteStream(), parameters.getOutputWriteStream());
                         test.assertNull(parameters.getPattern());
                         test.assertTrue(parameters.getPackJson());
                         test.assertTrue(parameters.getParallelPack());
@@ -123,8 +100,8 @@ public interface QubPackTests
                         test.assertFalse(verbose.isVerbose());
                         test.assertEqual(Warnings.Show, parameters.getWarnings());
 
-                        test.assertEqual("", output.getText().await());
-                        test.assertEqual("", error.getText().await());
+                        test.assertEqual("", process.getOutputWriteStream().getText().await());
+                        test.assertEqual("", process.getErrorWriteStream().getText().await());
                     }
                 });
             });
@@ -139,7 +116,6 @@ public interface QubPackTests
 
                 runner.test("with no project.json file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -152,13 +128,13 @@ public interface QubPackTests
                     qubBuildCompiledSourcesFile.create().await();
                     final File qubTestCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "test-java", "8").await();
                     qubTestCompiledSourcesFile.create().await();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final String jvmClassPath = "/fake-jvm-classpath";
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -172,7 +148,6 @@ public interface QubPackTests
 
                 runner.test("with no source files", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -191,13 +166,13 @@ public interface QubPackTests
                     qubBuildCompiledSourcesFile.create().await();
                     final File qubTestCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "test-java", "8").await();
                     qubTestCompiledSourcesFile.create().await();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final String jvmClassPath = "/fake-jvm-classpath";
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -211,7 +186,6 @@ public interface QubPackTests
 
                 runner.test("with simple success", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -280,12 +254,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -314,7 +288,6 @@ public interface QubPackTests
 
                 runner.test("with simple success and verbose", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -383,12 +356,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
                         .setVerbose(VerboseCharacterToByteWriteStream.create(output));
 
                     final int exitCode = QubPack.run(parameters);
@@ -437,7 +410,6 @@ public interface QubPackTests
 
                 runner.test("with inner class in source file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -510,12 +482,12 @@ public interface QubPackTests
                                 aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -545,7 +517,6 @@ public interface QubPackTests
 
                 runner.test("with anonymous classes in source file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -621,12 +592,12 @@ public interface QubPackTests
                                 aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -657,7 +628,6 @@ public interface QubPackTests
 
                 runner.test("with main class in project.json", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -729,12 +699,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -771,7 +741,6 @@ public interface QubPackTests
 
                 runner.test("with test folder", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -852,12 +821,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -892,7 +861,6 @@ public interface QubPackTests
 
                 runner.test("with test folder with inner class", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -977,12 +945,12 @@ public interface QubPackTests
                                 aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -1018,7 +986,6 @@ public interface QubPackTests
 
                 runner.test("with test folder with anonymous class", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -1103,12 +1070,12 @@ public interface QubPackTests
                                 aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader);
 
                     final int exitCode = QubPack.run(parameters);
 
@@ -1144,7 +1111,6 @@ public interface QubPackTests
 
                 runner.test("with packjson=false", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -1226,12 +1192,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
                         .setPackJson(false);
 
                     final int exitCode = QubPack.run(parameters);
@@ -1268,7 +1234,6 @@ public interface QubPackTests
 
                 runner.test("with packjson=true but no existing pack.json file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -1350,12 +1315,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
                         .setPackJson(true);
 
                     final int exitCode = QubPack.run(parameters);
@@ -1402,7 +1367,6 @@ public interface QubPackTests
 
                 runner.test("with packjson=true with existing empty pack.json file", (Test test) ->
                 {
-                    final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create().endOfStream();
                     final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                     final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
@@ -1485,12 +1449,12 @@ public interface QubPackTests
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
                     final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
-                    final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-                    environmentVariables.set("QUB_HOME", qubFolder.toString());
+                    final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
+                        .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
                         .addTypeContainer(QubBuild.class, qubBuildCompiledSourcesFile)
                         .addTypeContainer(QubTest.class, qubTestCompiledSourcesFile);
-                    final QubPackParameters parameters = new QubPackParameters(input, output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
+                    final QubPackParameters parameters = new QubPackParameters(output, error, currentFolder, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
                         .setPackJson(true);
 
                     final int exitCode = QubPack.run(parameters);

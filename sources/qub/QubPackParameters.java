@@ -10,7 +10,6 @@ public class QubPackParameters extends QubTestRunParameters
 
     /**
      * Create a new QubPackParameters object.
-     * @param inputReadStream The ByteReadStream that input should be read from.
      * @param outputWriteStream The ByteWriteStream that output should be written to.
      * @param errorWriteStream The ByteWriteStream that errors should be written to.
      * @param folderToPack The folder that should have its tests run.
@@ -19,9 +18,9 @@ public class QubPackParameters extends QubTestRunParameters
      * @param defaultApplicationLauncher The object that will launch the default application for
      *                                   given files.
      */
-    public QubPackParameters(CharacterToByteReadStream inputReadStream, CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath, TypeLoader typeLoader)
+    public QubPackParameters(CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath, TypeLoader typeLoader)
     {
-        super(inputReadStream, outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, QubPackParameters.getQubTestDataFolder(folderToPack, typeLoader), typeLoader);
+        super(outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, QubPackParameters.getQubTestDataFolder(folderToPack, typeLoader), typeLoader);
     }
 
     private static Folder getQubTestDataFolder(Folder folderToPack, TypeLoader typeLoader)
