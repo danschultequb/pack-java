@@ -20,7 +20,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -55,7 +55,7 @@ public interface QubPackParametersTests
                     fileSystem.createRoot("/").await();
                     final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                     final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                     final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                     qubBuildCompiledSourcesFile.create().await();
@@ -84,7 +84,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -122,7 +122,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -158,7 +158,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -195,7 +195,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -229,7 +229,7 @@ public interface QubPackParametersTests
                     fileSystem.createRoot("/").await();
                     final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                     final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                     final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                     qubBuildCompiledSourcesFile.create().await();
@@ -258,7 +258,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -296,7 +296,7 @@ public interface QubPackParametersTests
                         fileSystem.createRoot("/").await();
                         final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                         final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                        final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                         final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                         qubBuildCompiledSourcesFile.create().await();
@@ -330,7 +330,7 @@ public interface QubPackParametersTests
                     fileSystem.createRoot("/").await();
                     final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                     final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                     final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                     qubBuildCompiledSourcesFile.create().await();
@@ -359,7 +359,7 @@ public interface QubPackParametersTests
                     fileSystem.createRoot("/").await();
                     final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                     final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                     final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                     qubBuildCompiledSourcesFile.create().await();

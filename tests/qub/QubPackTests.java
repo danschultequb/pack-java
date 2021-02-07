@@ -122,7 +122,7 @@ public interface QubPackTests
                     fileSystem.createRoot("/").await();
                     final Folder currentFolder = fileSystem.getFolder("/current/folder/").await();
                     final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                     final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                     qubBuildCompiledSourcesFile.create().await();
@@ -160,7 +160,7 @@ public interface QubPackTests
                             .toString())
                         .await();
                     final FakeProcessFactory processFactory = FakeProcessFactory.create(test.getParallelAsyncRunner(), currentFolder);
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
                     final File qubBuildCompiledSourcesFile = qubFolder.getCompiledSourcesFile("qub", "build-java", "7").await();
                     qubBuildCompiledSourcesFile.create().await();
@@ -253,7 +253,7 @@ public interface QubPackTests
                             .addJarFile(aJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -355,7 +355,7 @@ public interface QubPackTests
                             .addJarFile(aJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -481,7 +481,7 @@ public interface QubPackTests
                                 abClassFile.relativeTo(outputsFolder),
                                 aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -591,7 +591,7 @@ public interface QubPackTests
                                 a2ClassFile.relativeTo(outputsFolder),
                                 aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -698,7 +698,7 @@ public interface QubPackTests
                             .addManifestFile(manifestFile)
                             .addContentFilePaths(Iterable.create(aClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -820,7 +820,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -944,7 +944,7 @@ public interface QubPackTests
                                 aTestsBClassFile.relativeTo(outputsFolder),
                                 aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -1069,7 +1069,7 @@ public interface QubPackTests
                                 aTests1ClassFile.relativeTo(outputsFolder),
                                 aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -1191,7 +1191,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -1314,7 +1314,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
@@ -1448,7 +1448,7 @@ public interface QubPackTests
                             .addJarFile(aTestsJarFile.relativeTo(outputsFolder))
                             .addContentFilePaths(Iterable.create(aTestsClassFile.relativeTo(outputsFolder)))
                             .setFunctionAutomatically());
-                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create();
+                    final FakeDefaultApplicationLauncher defaultApplicationLauncher = FakeDefaultApplicationLauncher.create(fileSystem);
                     final EnvironmentVariables environmentVariables = EnvironmentVariables.create()
                         .set("QUB_HOME", qubFolder.toString());
                     final FakeTypeLoader typeLoader = FakeTypeLoader.create()
