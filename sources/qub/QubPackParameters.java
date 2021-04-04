@@ -18,9 +18,9 @@ public class QubPackParameters extends QubTestRunParameters
      * @param defaultApplicationLauncher The object that will launch the default application for
      *                                   given files.
      */
-    public QubPackParameters(CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath, TypeLoader typeLoader)
+    public QubPackParameters(CharacterToByteWriteStream outputWriteStream, CharacterToByteWriteStream errorWriteStream, Folder folderToPack, EnvironmentVariables environmentVariables, ProcessFactory processFactory, DefaultApplicationLauncher defaultApplicationLauncher, String jvmClassPath, TypeLoader typeLoader, QubFolder qubFolder)
     {
-        super(outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, QubPackParameters.getQubTestDataFolder(folderToPack, typeLoader), typeLoader);
+        super(outputWriteStream, errorWriteStream, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, qubFolder, QubPackParameters.getQubTestDataFolder(folderToPack, typeLoader), typeLoader);
     }
 
     private static Folder getQubTestDataFolder(Folder folderToPack, TypeLoader typeLoader)

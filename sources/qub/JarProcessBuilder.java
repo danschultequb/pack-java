@@ -34,7 +34,7 @@ public class JarProcessBuilder extends ProcessBuilderDecorator<JarProcessBuilder
     {
         PreCondition.assertNotNull(processFactory, "processFactory");
 
-        return Result.create(() ->
+        return Result.create2(() ->
         {
             return new JarProcessBuilder(processFactory.getProcessBuilder(JarProcessBuilder.executablePathString).await());
         });

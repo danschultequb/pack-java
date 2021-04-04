@@ -78,8 +78,9 @@ public interface QubPack
             final VerboseCharacterToByteWriteStream verboseStream = verboseParameter.getVerboseCharacterToByteWriteStream().await();
             final boolean profiler = profilerParameter.getValue().await();
             final TypeLoader typeLoader = process.getTypeLoader();
+            final QubFolder qubFolder = process.getQubFolder().await();
 
-            result = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader)
+            result = new QubPackParameters(output, error, folderToPack, environmentVariables, processFactory, defaultApplicationLauncher, jvmClassPath, typeLoader, qubFolder)
                 .setPackJson(packJson)
                 .setParallelPack(parallel)
                 .setTestJson(testJson)

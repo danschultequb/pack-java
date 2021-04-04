@@ -32,7 +32,7 @@ public class PackJSONFile
     {
         PreCondition.assertNotNull(json, "json");
 
-        return Result.create(() ->
+        return Result.create2(() ->
         {
             // If the DateTime successfully parses the property value, then it's a valid
             // PackJSONFile JSONProperty.

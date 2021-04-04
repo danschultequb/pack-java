@@ -50,12 +50,6 @@ public interface PackJSONTests
                 createTest.run(
                     JSONObject.create()
                         .setObject("sourceFiles", JSONObject.create()
-                            .setString("a/b.java", "hello")),
-                    PackJSON.create()
-                        .setSourceFiles(Iterable.create()));
-                createTest.run(
-                    JSONObject.create()
-                        .setObject("sourceFiles", JSONObject.create()
                             .setString("a/b.java", "0001-02-03T00:00Z")),
                     PackJSON.create()
                         .setSourceFiles(Iterable.create(

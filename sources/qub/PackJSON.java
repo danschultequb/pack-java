@@ -1,19 +1,15 @@
 package qub;
 
-public class PackJSON
+public class PackJSON extends JSONObjectWrapperBase
 {
     private static final String projectPropertyName = "project";
     private static final String sourceFilesPropertyName = "sourceFiles";
     private static final String sourceOutputFilesPropertyName = "sourceOutputFiles";
     private static final String testOutputFilesPropertyName = "testOutputFiles";
 
-    private final JSONObject json;
-
     private PackJSON(JSONObject json)
     {
-        PreCondition.assertNotNull(json, "json");
-
-        this.json = json;
+        super(json);
     }
 
     public static PackJSON create()
@@ -82,38 +78,6 @@ public class PackJSON
     public Iterable<PackJSONFile> getTestOutputFiles()
     {
         return PackJSON.parsePackJSONFiles(this.json, PackJSON.testOutputFilesPropertyName);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof PackJSON && this.equals((PackJSON)rhs);
-    }
-
-    public boolean equals(PackJSON rhs)
-    {
-        return rhs != null &&
-            Comparer.equal(this.getSourceFiles(), rhs.getSourceFiles()) &&
-            Comparer.equal(this.getSourceOutputFiles(), rhs.getSourceOutputFiles()) &&
-            Comparer.equal(this.getTestOutputFiles(), rhs.getTestOutputFiles());
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.toString(JSONFormat.consise);
-    }
-
-    public String toString(JSONFormat format)
-    {
-        PreCondition.assertNotNull(format, "format");
-
-        return this.toJson().toString(format);
-    }
-
-    public JSONObject toJson()
-    {
-        return this.json;
     }
 
     private static void setPackJsonFiles(JSONObject json, String propertyName, Iterable<PackJSONFile> packJSONFiles)
