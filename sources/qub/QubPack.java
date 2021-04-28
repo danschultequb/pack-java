@@ -129,7 +129,7 @@ public interface QubPack
             final List<Result<Void>> tasksToAwait = List.create();
 
             final Folder sourceFolder = folderToPack.getFolder("sources").await();
-            final Iterable<File> sourceJavaFiles = sourceFolder.getFilesRecursively().await()
+            final Iterable<File> sourceJavaFiles = sourceFolder.iterateFilesRecursively()
                 .where((File file) -> Comparer.equal(file.getFileExtension(), ".java"))
                 .toList();
 
@@ -172,7 +172,7 @@ public interface QubPack
                 }
             }
 
-            final Iterable<File> outputClassFiles = outputFolder.getFilesRecursively().await()
+            final Iterable<File> outputClassFiles = outputFolder.iterateFilesRecursively()
                 .where((File file) -> Comparer.equal(file.getFileExtension(), ".class"))
                 .toList();
 
@@ -224,7 +224,7 @@ public interface QubPack
             if (testFolder.exists().await())
             {
                 final File compiledTestsJarFile = outputFolder.getFile(projectJson.getProject() + ".tests.jar").await();
-                final Iterable<File> testJavaFiles = testFolder.getFilesRecursively().await()
+                final Iterable<File> testJavaFiles = testFolder.iterateFilesRecursively()
                     .where((File file) -> Comparer.equal(file.getFileExtension(), ".java"))
                     .toList();
                 final Iterable<File> testSourceClassFiles = QubPack.getSourceClassFiles(outputFolder, outputClassFiles, testFolder, testJavaFiles);
